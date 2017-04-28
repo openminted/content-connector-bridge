@@ -1,8 +1,7 @@
 package eu.openminted.content.bridge;
 
-import eu.openminted.content.mocks.Index;
-import eu.openminted.content.mocks.IndexImpl;
-import eu.openminted.content.mocks.IndexResponse;
+import eu.openminted.content.mocks.MockIndex;
+import eu.openminted.content.mocks.MockIndexImpl;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.StreamingResponseCallback;
@@ -57,7 +56,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
             saxParser.parse(new InputSource(new StringReader(xml)), handler);
 
-            Index index = IndexImpl.getIndexInstance();
+            MockIndex index = MockIndexImpl.getIndexInstance();
 
             boolean hasAbstract = false;
             if (handler.getDescription() != null

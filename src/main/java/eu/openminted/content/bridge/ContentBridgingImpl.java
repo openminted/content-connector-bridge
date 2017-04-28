@@ -15,7 +15,6 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
@@ -30,7 +29,6 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
@@ -71,7 +69,6 @@ public class ContentBridgingImpl implements ContentBridging {
     void init() {
         try {
             limit = Integer.parseInt(queryLimit);
-            System.out.println("\n\n\n\n\n\n" + limit + "\n\n\n\n\n");
         } catch (NumberFormatException e) {
             log.error("ContentBridging: Wrong format of limit number.", e);
             limit = 0;
@@ -116,27 +113,21 @@ public class ContentBridgingImpl implements ContentBridging {
         }
         query.setFrom(0);
         query.setTo(1);
-        if (query.getFacets() == null) query.setFacets(new ArrayList<>());
-
-        SearchResult searchResult = new SearchResult();
-        Facet sourceFacet = new Facet();
-
-        searchResult.setFacets(new ArrayList<>());
-
-        sourceFacet.setField("source");
-        sourceFacet.setLabel("Content Source");
-        sourceFacet.setValues(new ArrayList<>());
 
         SolrClient solrClient = new HttpSolrClient.Builder(localHost).build();
         OpenAireSolrClient client = new OpenAireSolrClient();
+        SearchResult searchResult = new SearchResult();
+        searchResult.setFacets(new ArrayList<>());
+
+        if (query.getFacets() == null) query.setFacets(new ArrayList<>());
+
+
         SolrQuery solrQuery = client.queryBuilder(query);
         QueryResponse queryResponse = null;
         Map<String, Facet> facets = new HashMap<>();
 
-
         try {
             queryResponse = solrClient.query(solrQuery);
-
             searchResult.setFrom((int) queryResponse.getResults().getStart());
             searchResult.setTo((int) queryResponse.getResults().getStart() + queryResponse.getResults().size());
             searchResult.setTotalHits((int) queryResponse.getResults().getNumFound());
@@ -167,9 +158,9 @@ public class ContentBridgingImpl implements ContentBridging {
                 searchResult.getPublications().add(doc);
             }
         } catch (SolrServerException e) {
-            e.printStackTrace();
+            log.error("search.SolrServerException", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("search.IOException", e);
         }
         return searchResult;
     }
@@ -280,7 +271,7 @@ public class ContentBridgingImpl implements ContentBridging {
         }
     }
 
-    public String getDefaultCollection() {
+    String getDefaultCollection() {
         return defaultCollection;
     }
 

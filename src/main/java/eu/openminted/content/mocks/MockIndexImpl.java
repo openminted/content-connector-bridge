@@ -1,11 +1,11 @@
 package eu.openminted.content.mocks;
 
+import eu.openminted.content.bridge.IndexResponse;
 import eu.openminted.omtdcache.CacheDataID;
 import eu.openminted.omtdcache.CacheDataIDMD5;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -16,17 +16,17 @@ import java.util.Properties;
 /***
  * This is a mocking index object
  */
-public class IndexImpl implements Index {
-    private static Logger log = Logger.getLogger(IndexImpl.class.getName());
+public class MockIndexImpl implements MockIndex {
+    private static Logger log = Logger.getLogger(MockIndexImpl.class.getName());
     private static Map<String, IndexResponse> index;
-    CacheDataID cacheDataIDProvider;
+    private CacheDataID cacheDataIDProvider;
 
-    private IndexImpl() {
+    private MockIndexImpl() {
         index = new HashMap<>();
         cacheDataIDProvider = new CacheDataIDMD5();
     }
 
-    public static IndexImpl getIndexInstance() {
+    public static MockIndexImpl getIndexInstance() {
         return IndexInstance.instance;
     }
 
@@ -78,7 +78,7 @@ public class IndexImpl implements Index {
     }
 
     private static class IndexInstance {
-        static final IndexImpl instance = new IndexImpl();
+        static final MockIndexImpl instance = new MockIndexImpl();
     }
 
 }

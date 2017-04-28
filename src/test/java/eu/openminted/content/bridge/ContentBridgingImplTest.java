@@ -23,7 +23,7 @@ import java.util.HashMap;
 public class ContentBridgingImplTest {
 
     @Autowired
-    ContentBridgingImpl contentBridging;
+    private ContentBridgingImpl contentBridging;
 
     @Test
     @Ignore
@@ -52,6 +52,7 @@ public class ContentBridgingImplTest {
         Query query = new Query();
         query.setParams(new HashMap<>());
         query.setKeyword("*:*");
+
 
 //        query.getParams().put("sort", new ArrayList<>());
 //        query.getParams().get("sort").add("__indexrecordidentifier asc");
