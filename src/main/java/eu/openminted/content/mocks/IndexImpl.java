@@ -32,7 +32,6 @@ public class IndexImpl implements Index {
 
     @Override
     public boolean containsId(String identifier) {
-//        identifier = "od_______165::00000090f0a93f19f8fb17252976f1fb";
         return index.containsKey(identifier);
     }
 
@@ -42,7 +41,6 @@ public class IndexImpl implements Index {
         String fulltext = properties.getProperty("fulltext");
         String mimetype = properties.getProperty("mimetype");
 
-//        identifier = "od_______165::00000090f0a93f19f8fb17252976f1fb";
         if (index.containsKey(identifier)) return index.get(identifier);
 
         IndexResponse indexResponse = null;
@@ -73,8 +71,6 @@ public class IndexImpl implements Index {
 
             index.put(identifier, indexResponse);
             indexResponse = index.get(identifier);
-//        } catch (FileNotFoundException e) {
-//            log.info("Document not existing", e);
         } catch (Exception e) {
             log.error("getOrTryAddHashId error opening stream", e);
         }

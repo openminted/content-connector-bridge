@@ -1,10 +1,21 @@
 package eu.openminted.content.bridge;
 
 import eu.openminted.content.connector.Query;
+import eu.openminted.content.connector.SearchResult;
 import eu.openminted.content.openaire.OpenAireSolrClient;
+import eu.openminted.registry.domain.Facet;
+import eu.openminted.registry.domain.Value;
 import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
@@ -19,7 +30,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
+import java.io.StringReader;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
@@ -28,6 +39,10 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class ContentBridgingImpl implements ContentBridging {
@@ -86,6 +101,109 @@ public class ContentBridgingImpl implements ContentBridging {
         } catch (TransformerConfigurationException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public SearchResult search(Query query) {
+        final String FACET_DOCUMENT_TYPE_FIELD = "documentType";
+        final String FACET_DOCUMENT_TYPE_LABEL = "Document Type";
+        final String FACET_DOCUMENT_TYPE_COUNT_NAME = "fullText";
+
+        if (query == null) {
+            query = new Query("*:*", new HashMap<>(), new ArrayList<>(), 0, 1);
+        } else if (query.getKeyword() == null || query.getKeyword().isEmpty()) {
+            query.setKeyword("*:*");
+        }
+        query.setFrom(0);
+        query.setTo(1);
+        if (query.getFacets() == null) query.setFacets(new ArrayList<>());
+
+        SearchResult searchResult = new SearchResult();
+        Facet sourceFacet = new Facet();
+
+        searchResult.setFacets(new ArrayList<>());
+
+        sourceFacet.setField("source");
+        sourceFacet.setLabel("Content Source");
+        sourceFacet.setValues(new ArrayList<>());
+
+        SolrClient solrClient = new HttpSolrClient.Builder(localHost).build();
+        OpenAireSolrClient client = new OpenAireSolrClient();
+        SolrQuery solrQuery = client.queryBuilder(query);
+        QueryResponse queryResponse = null;
+        Map<String, Facet> facets = new HashMap<>();
+
+
+        try {
+            queryResponse = solrClient.query(solrQuery);
+
+            searchResult.setFrom((int) queryResponse.getResults().getStart());
+            searchResult.setTo((int) queryResponse.getResults().getStart() + queryResponse.getResults().size());
+            searchResult.setTotalHits((int) queryResponse.getResults().getNumFound());
+
+
+            if (queryResponse.getFacetFields() != null) {
+                for (FacetField facetField : queryResponse.getFacetFields()) {
+                    Facet facet = buildFacet(facetField);
+                    if (facet != null) {
+                        if (!facets.containsKey(facet.getField())) {
+                            facets.put(facet.getField(), facet);
+                        }
+                    }
+                }
+                // Facet Field documenttype does not exist in OpenAIRE, so we added it explicitly
+                if (searchResult.getTotalHits() > 0) {
+                    Facet documentTypeFacet = buildFacet(FACET_DOCUMENT_TYPE_FIELD, FACET_DOCUMENT_TYPE_LABEL, FACET_DOCUMENT_TYPE_COUNT_NAME, searchResult.getTotalHits());
+                    facets.put(documentTypeFacet.getField(), documentTypeFacet);
+                }
+            }
+
+            searchResult.setFacets(new ArrayList<>(facets.values()));
+            searchResult.setPublications(new ArrayList<>());
+
+            for (SolrDocument document : queryResponse.getResults()) {
+                String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + document
+                        .getFieldValues(queryOutputField).toArray()[0].toString();
+                searchResult.getPublications().add(doc);
+            }
+        } catch (SolrServerException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return searchResult;
+    }
+
+    private Facet buildFacet(FacetField facetField) {
+
+        Facet facet = new Facet();
+        facet.setField(facetField.getName());
+        facet.setLabel(facetField.getName());
+        List<Value> values = new ArrayList<>();
+        for (FacetField.Count count : facetField.getValues()) {
+            if (count.getCount() == 0) continue;
+            Value value = new Value();
+            value.setValue(count.getName());
+            value.setCount((int) count.getCount());
+            values.add(value);
+        }
+        facet.setValues(values);
+        return facet;
+    }
+
+    private Facet buildFacet(String field, String label, String countName, int countValue) {
+        Facet facet = new Facet();
+        facet.setLabel(label);
+        facet.setField(field);
+
+        List<Value> values = new ArrayList<>();
+        Value value = new Value();
+        value.setValue(countName);
+        value.setCount(countValue);
+        values.add(value);
+
+        facet.setValues(values);
+        return facet;
     }
 
     /***

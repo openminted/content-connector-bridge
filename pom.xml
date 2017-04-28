@@ -7,6 +7,7 @@
     <groupId>eu.openminted</groupId>
     <artifactId>content-connector-bridge</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
 
     <name>content-connector-bridge</name>
     <url>http://maven.apache.org</url>
@@ -21,6 +22,16 @@
             <groupId>eu.openminted</groupId>
             <artifactId>omtd-cache-id</artifactId>
             <version>[0.0.1-SNAPSHOT, )</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

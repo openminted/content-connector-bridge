@@ -1,6 +1,7 @@
 package eu.openminted.content.bridge;
 
 import eu.openminted.content.connector.Query;
+import eu.openminted.content.connector.SearchResult;
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
@@ -47,21 +48,38 @@ public class ContentBridgingImplTest {
     @Test
 //    @Ignore
     public void select() throws Exception {
-        SolrClient solrClient = new HttpSolrClient.Builder(contentBridging.getLocalHost()).build();
-        SolrQuery solrQuery = new SolrQuery("*:*");
-        solrQuery.setStart(0);
-        solrQuery.setRows(100);
 
-        QueryResponse queryResponse = solrClient.query(solrQuery);
-        int count = 0;
-        for (SolrDocument document : queryResponse.getResults()) {
-            String doc = document
-                    .getFieldValues(contentBridging.getQueryOutputField()).toArray()[0].toString();
-            if (doc.contains("indexinfo")) {
-                System.out.println(doc);
-                count++;
-            }
-        }
-        System.out.println("\nTotal count of indexed " + count + "\n");
+        Query query = new Query();
+        query.setParams(new HashMap<>());
+        query.setKeyword("*:*");
+
+//        query.getParams().put("sort", new ArrayList<>());
+//        query.getParams().get("sort").add("__indexrecordidentifier asc");
+//        query.getParams().put("sort", new ArrayList<>());
+//        query.getParams().get("sort").add("__indexrecordidentifier asc");
+//        query.setKeyword("digital");
+//        query.getParams().put("resultrights", new ArrayList<>());
+//        query.getParams().get("resultrights").add("Open Access");
+
+        SearchResult result = contentBridging.search(query);
+        System.out.println("\nFacets " + result.getFacets().get(0).getLabel() + "\n");
+        System.out.println("\nTotal hits " + result.getTotalHits() + "\n");
+
+//        SolrClient solrClient = new HttpSolrClient.Builder(contentBridging.getLocalHost()).build();
+//        SolrQuery solrQuery = new SolrQuery("*:*");
+//        solrQuery.setStart(0);
+//        solrQuery.setRows(100);
+//
+//        QueryResponse queryResponse = solrClient.query(solrQuery);
+//        int count = 0;
+//        for (SolrDocument document : queryResponse.getResults()) {
+//            String doc = document
+//                    .getFieldValues(contentBridging.getQueryOutputField()).toArray()[0].toString();
+//            if (doc.contains("indexinfo")) {
+//                System.out.println(doc);
+//                count++;
+//            }
+//        }
+//        System.out.println("\nTotal count of indexed " + count + "\n");
     }
 }
