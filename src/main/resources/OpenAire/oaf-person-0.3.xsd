@@ -1,0 +1,49 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://namespace.openaire.eu/oaf"
+	targetNamespace="http://namespace.openaire.eu/oaf" elementFormDefault="unqualified">
+
+	<xs:annotation>
+		<xs:documentation>This schema describes elements and properties of OpenAIRE+ entities of
+			type person</xs:documentation>
+	</xs:annotation>
+
+	<xs:include schemaLocation="oaf-common-0.3.xsd"/>
+
+	<xs:element name="person">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="firstname" type="xs:string"/>
+				<xs:element name="secondnames" type="xs:string"/>
+				<xs:element name="fullname" type="xs:string"/>
+				<xs:element name="fax" type="xs:string"/>
+				<xs:element name="email" type="xs:string"/>
+				<xs:element name="phone" type="xs:string"/>
+				<xs:element name="nationality" type="optionalClassedSchemedElement">
+					<xs:annotation>
+						<xs:documentation> Countries in ISO 3166-1 alpha-2. <p>For allowed values
+								check: http://api.openaire.eu/vocabularies/dnet:countries </p>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="originalId" type="xs:string"
+					maxOccurs="unbounded"/>
+				<xs:element name="collectedfrom" type="namedIdElement" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Identifier and name of the datasource from which this
+							person has been collected from. </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="pid" type="optionalClassedSchemedElement"/>
+				<xs:element name="anchor" type="xs:boolean"/>
+				<xs:element name="datainfo" type="datainfoType"/>
+				<xs:element name="rels" type="relsType">
+					<xs:annotation>
+						<xs:documentation>Relationships to other entities.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="children">
+					<xs:complexType mixed="true"/>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

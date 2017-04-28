@@ -1,0 +1,127 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://namespace.openaire.eu/oaf"
+	targetNamespace="http://namespace.openaire.eu/oaf" elementFormDefault="unqualified">
+
+	<xs:annotation>
+		<xs:documentation>This schema describes elements and properties of OpenAIRE+ entities of
+			type organisation </xs:documentation>
+	</xs:annotation>
+
+	<xs:include schemaLocation="oaf-common-0.3.xsd"/>
+
+	<xs:element name="organization">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:element name="legalname" type="xs:string"/>
+				<xs:element name="legalshortname" type="xs:string"/>
+				<xs:element name="logourl" type="xs:string"/>
+				<xs:element name="originalId" type="xs:string"/>
+				<xs:element name="websiteurl" type="xs:string"/>
+				<xs:element name="country" type="optionalClassedSchemedElement">
+					<xs:annotation>
+						<xs:documentation> Countries in ISO 3166-1 alpha-2. <p>For allowed values
+								check: http://api.openaire.eu/vocabularies/dnet:countries </p>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ecenterprise" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is an enteprise. Value comes
+							from CORDA (Enterprise) </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="echighereducation" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is in the higher education.
+							Value comes from CORDA (HigherEducation). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<!-- We might want to remove this field since it seems to be a duplicate 
+					of ecinternationalorganizationeurinterests -->
+				<xs:element name="ecinternationalorganization" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is international. Value comes
+							from CORDA (InternationalOrgEurInterest). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ecinternationalorganizationeurinterests" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Value comes from CORDA (InternationalOrgEurInterest).
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="eclegalbody" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is a legal body. Value comes
+							from CORDA (PublicBody). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="eclegalperson" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is a legal person. Value comes
+							from CORDA (LegalPerson). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ecnonprofit" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is non-profit. Value comes from
+							CORDA (NonProfit). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ecnutscode" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Value comes from CORDA. </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ecresearchorganization" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Tells if this organisation is a research organisation.
+							Value comes from CORDA (ResearchOrganisation). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ecsmevalidated" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Value comes from CORDA (SMEValidated). </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="collectedfrom" type="namedIdElement">
+					<xs:annotation>
+						<xs:documentation>Identifier and name of the datasource from which this
+							organization has been collected from. </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="pid" type="optionalClassedSchemedElement"/>
+				<xs:element name="datainfo" type="datainfoType"/>
+				<xs:element name="rels" type="relsType">
+					<xs:annotation>
+						<xs:documentation>Relationships to other entities. </xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="children" type="childrenOrg"/>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="childrenOrg">
+		<xs:sequence>
+			<xs:element name="organization" minOccurs="0" maxOccurs="unbounded">
+				<xs:complexType>
+					<xs:choice maxOccurs="unbounded">
+						<xs:element name="legalshortname" type="xs:string" minOccurs="0"
+							maxOccurs="1"/>
+						<xs:element name="legalname" type="xs:string" minOccurs="1" maxOccurs="1"/>
+						<xs:element name="websiteurl" type="xs:string" minOccurs="0" maxOccurs="1"/>
+						<xs:element name="country" type="classedSchemedElement">
+							<xs:annotation>
+								<xs:documentation> Tells if this record is about a publication or a
+									dataset. <p>For allowed values check:
+										http://api.openaire.eu/vocabularies/dnet:result_typologies </p>
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:choice>
+					<xs:attribute name="objidentifier" use="required"/>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

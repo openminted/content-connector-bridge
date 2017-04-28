@@ -1,0 +1,179 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://namespace.openaire.eu/oaf"
+	targetNamespace="http://namespace.openaire.eu/oaf" elementFormDefault="unqualified">
+
+	<xs:annotation>
+		<xs:documentation>This schema describes elements and properties of
+			OpenAIRE+ entities of type
+			datasource
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:include schemaLocation="oaf-common-0.3.xsd" />
+
+	<xs:element name="datasource">
+		<xs:complexType>
+			<xs:choice maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Elements whose names start with "od" contain
+						original values collected
+						from OpenDOAR.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:element name="officialname" type="xs:string" />
+				<xs:element name="englishname" type="xs:string" />
+				<xs:element name="websiteurl" type="xs:string" />
+				<xs:element name="contactemail" type="xs:string" />
+				<xs:element name="accessinfopackage" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Info about how to access content of this
+							datasource.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="namespaceprefix" type="xs:string" />
+				<xs:element name="datasourcetypeui" type="classedSchemedElement">
+					<xs:annotation>
+						<xs:documentation>
+							Type of this data source to be displayed in the OpenAire
+							portal.
+							<p>For allowed values check terms in:
+								http://api.openaire.eu/vocabularies/dnet:datasource_typologies
+							</p>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="datasourcetype" type="classedSchemedElement">
+					<xs:annotation>
+						<xs:documentation>
+							Type of this data source.
+							<p>For allowed values check codes in:
+								http://api.openaire.eu/vocabularies/dnet:datasource_typologies
+							</p>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="openairecompatibility" type="classedSchemedElement">
+					<xs:annotation>
+						<xs:documentation>
+							Level of compatibility of this datasource with regards to the
+							guidelines.
+							<p>For allowed values check:
+								http://api.openaire.eu/vocabularies/dnet:datasourceCompatibilityLevel
+							</p>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="latitude" type="xs:string"
+					minOccurs="0" />
+				<xs:element name="longitude" type="xs:string"
+					minOccurs="0" />
+				<xs:element name="dateofvalidation" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>When this datasource has been validated by the
+							OpenAire
+							Validator.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="description" type="xs:string" />
+				<xs:element name="subjects" type="optionalClassedSchemedElement">
+					<xs:annotation>
+						<xs:documentation>
+							Subjects and keywords.
+							<p>For allowed values check:
+								http://api.openaire.eu/vocabularies/dnet:result_subjects
+							</p>
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="policies" type="namedIdElement" />
+				<xs:element name="logourl" type="xs:string" />
+				<xs:element name="releasestartdate" type="xs:string" />
+				<xs:element name="releaseenddate" type="xs:string" />
+				<xs:element name="missionstatementurl" type="xs:string" />
+				<xs:element name="dataprovider" type="boolOrEmptyType">
+					<xs:annotation>
+						<xs:documentation>True if this datasource is a data provider.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="serviceprovider" type="boolOrEmptyType">
+					<xs:annotation>
+						<xs:documentation>True if this datasource is a service provider.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="databaseaccesstype" type="xs:string">
+				</xs:element>
+				<xs:element name="datauploadtype" type="xs:string" />
+				<xs:element name="databaseaccessrestriction" type="xs:string" />
+				<xs:element name="datauploadrestriction" type="xs:string" />
+				<xs:element name="versioning" type="boolOrEmptyType" />
+				<xs:element name="citationguidelineurl" type="xs:string" />
+				<xs:element name="qualitymanagementkind" type="xs:string" />
+				<xs:element name="pidsystems" type="xs:string" />
+				<xs:element name="certificates" type="xs:string" />
+				<xs:element name="originalId" type="xs:string" />
+				<xs:element name="collectedfrom" type="namedIdElement">
+					<xs:annotation>
+						<xs:documentation>Identifier and name of the datasource from which
+							this datasource has
+							been collected from.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="pid" type="optionalClassedSchemedElement" />
+				<xs:element name="datainfo" type="datainfoType"/>
+				<xs:element name="rels" type="relsType">
+					<xs:annotation>
+						<xs:documentation>Relationships to other entities.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="children">
+					<xs:complexType mixed="true" />
+				</xs:element>
+				<xs:element name="odnumberofitems" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Number of items delivered by this datasource
+							according to the
+							information available on OpenDOAR.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="odnumberofitemsdate" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>When the number of items in odnumberofitems has
+							been set according to
+							the information available on OpenDOAR.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="odlanguages" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Languages supported by this datasource according
+							to the information
+							available on OpenDOAR.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="odcontenttypes" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Types of content delivered by this datasource
+							according to the
+							information available on OpenDOAR.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="odpolicies" type="xs:string">
+					<xs:annotation>
+						<xs:documentation>Policies of this datasource according to the
+							information available on
+							OpenDOAR.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
