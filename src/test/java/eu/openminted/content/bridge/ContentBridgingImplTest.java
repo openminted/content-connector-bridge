@@ -26,7 +26,7 @@ public class ContentBridgingImplTest {
     private ContentBridgingImpl contentBridging;
 
     @Test
-    @Ignore
+//    @Ignore
     public void bridge() throws Exception {
 
         while (contentBridging.getDefaultCollection() == null || contentBridging.getDefaultCollection().isEmpty()) {
@@ -52,18 +52,14 @@ public class ContentBridgingImplTest {
         Query query = new Query();
         query.setParams(new HashMap<>());
         query.setKeyword("*:*");
-
-
-//        query.getParams().put("sort", new ArrayList<>());
-//        query.getParams().get("sort").add("__indexrecordidentifier asc");
-//        query.getParams().put("sort", new ArrayList<>());
-//        query.getParams().get("sort").add("__indexrecordidentifier asc");
+        query.getParams().put("sort", new ArrayList<>());
+        query.getParams().get("sort").add("__indexrecordidentifier asc");
 //        query.setKeyword("digital");
-//        query.getParams().put("resultrights", new ArrayList<>());
-//        query.getParams().get("resultrights").add("Open Access");
+        query.getParams().put("resultrights", new ArrayList<>());
+        query.getParams().get("resultrights").add("Open Access");
 
         SearchResult result = contentBridging.search(query);
-        System.out.println("\nFacets " + result.getFacets().get(0).getLabel() + "\n");
+        System.out.println("\nFacets " + result.getFacets() + "\n");
         System.out.println("\nTotal hits " + result.getTotalHits() + "\n");
 
 //        SolrClient solrClient = new HttpSolrClient.Builder(contentBridging.getLocalHost()).build();
