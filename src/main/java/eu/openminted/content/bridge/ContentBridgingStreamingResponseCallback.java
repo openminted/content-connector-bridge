@@ -1,5 +1,6 @@
 package eu.openminted.content.bridge;
 
+import eu.openminted.content.mocks.IndexResponse;
 import eu.openminted.content.mocks.MockIndex;
 import eu.openminted.content.mocks.MockIndexImpl;
 import org.apache.log4j.Logger;

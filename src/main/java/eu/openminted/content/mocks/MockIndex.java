@@ -1,7 +1,5 @@
 package eu.openminted.content.mocks;
 
-import eu.openminted.content.bridge.IndexResponse;
-
 import java.util.Properties;
 
 public interface MockIndex {
