@@ -9,6 +9,7 @@ import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
+import org.springframework.core.io.Resource;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -18,9 +19,12 @@ import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathExpressionException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -33,26 +37,28 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     private DocumentBuilder builder;
     private Transformer transformer;
     private HttpSolrClient solrClient;
+    private Resource resource;
 
-    ContentBridgingStreamingResponseCallback(String field, String host) throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
-        outputField = field;
-        handler = new ContentBridgingHandler();
+    ContentBridgingStreamingResponseCallback(String field, String host, String defaultCollection, Resource resource) throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
+        this.outputField = field;
+        this.handler = new ContentBridgingHandler();
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        saxParser = factory.newSAXParser();
-        domFactory.setIgnoringComments(true);
-        builder = domFactory.newDocumentBuilder();
-        transformer = TransformerFactory.newInstance().newTransformer();
-        solrClient = new HttpSolrClient.Builder(host).build();
-        solrClient.setRequestWriter(new BinaryRequestWriter());
+        this.saxParser = factory.newSAXParser();
+        this.domFactory.setIgnoringComments(true);
+        this.builder = domFactory.newDocumentBuilder();
+        this.transformer = TransformerFactory.newInstance().newTransformer();
+        this.solrClient = new HttpSolrClient.Builder(host + "/" + defaultCollection).build();
+        this.solrClient.setRequestWriter(new BinaryRequestWriter());
+
+        this.resource = resource;
     }
 
     @Override
     public void streamSolrDocument(SolrDocument solrDocument) {
         try {
-
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                    + solrDocument.getFieldValue(outputField).toString()
+            String xml = solrDocument.getFieldValue(outputField).toString()
                     .replaceAll("\\[|\\]", "");
+            xml = xml.trim();
 
             saxParser.parse(new InputSource(new StringReader(xml)), handler);
 
@@ -111,25 +117,39 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                 String xmlOutput = result.getWriter().toString();
 
                 SolrInputDocument solrInputDocument = new SolrInputDocument();
-                for( Map.Entry<String, Object> f : solrDocument.entrySet()) {
-                    if (f.getKey().equals("_version_")) continue;
-                    if (!f.getKey().equals("__result"))
-                        System.out.println("\n" + f.getKey() + " = " + f.getValue());
-                    solrInputDocument.setField(f.getKey(), f.getValue()) ;
+                Map<String, List<String>> indexedfields = null;
+
+                try {
+                    InputStream is = resource.getInputStream();
+                    indexedfields = ContentIndexing.indexFields(is, xmlOutput);
+
+                    System.out.println(indexedfields);
+                } catch (ParserConfigurationException e) {
+                    log.error(this.getClass().toString() + ": Parser Configuration exception", e);
+                } catch (XPathExpressionException e) {
+                    log.error(this.getClass().toString() + ": XPath Expression exception", e);
                 }
-                solrInputDocument.addField(outputField, xmlOutput);
-                System.out.println(solrInputDocument);
+
+                for (Map.Entry<String, Object> f : solrDocument.entrySet()) {
+                    // field "version" will be recreated in the new index
+                    if (f.getKey().equals("_version_")) continue;
+                    solrInputDocument.setField(f.getKey(), f.getValue());
+                }
+
+                if (indexedfields != null)
+                    for (Map.Entry<String, List<String>> p : indexedfields.entrySet()) {
+                        solrInputDocument.addField(p.getKey(), p.getValue());
+                    }
+                solrInputDocument.setField(outputField, xmlOutput);
 
                 solrClient.add(solrInputDocument);
                 solrClient.commit();
             }
         } catch (SAXException | IOException | TransformerException e) {
             log.error("ContentBridgingStreamingResponseCallback.streamSolrDocument", e);
+        } catch (SolrServerException e) {
+            log.error("ContentBridgingStreamingResponseCallback.SolrServerException", e);
         }
-        catch (SolrServerException e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override

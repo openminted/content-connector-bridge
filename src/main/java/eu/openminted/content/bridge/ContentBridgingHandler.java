@@ -6,32 +6,36 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class ContentBridgingHandler extends DefaultHandler {
-    String value = "";
-    String identifier = "";
-    String format = "";
-    String description = "";
-    String fulltext = "";
+    private String value = "";
+    private String identifier = "";
+    private String format = "";
+    private String description = "";
+    private String fulltext = "";
 
     private static Logger log = Logger.getLogger(ContentBridgingHandler.class.getName());
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-
+        if (qName.equalsIgnoreCase("dri:objIdentifier")) {
+            value = "";
+        } else if (qName.equalsIgnoreCase("format")) {
+            value = "";
+        } else if (qName.equalsIgnoreCase("description")) {
+            value = "";
+        } else if (qName.equalsIgnoreCase("fulltext")) {
+            value = "";
+        }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equalsIgnoreCase("dri:objIdentifier")) {
             identifier = value;
-            value = "";
         } else if (qName.equalsIgnoreCase("format")) {
             format = value;
-            value = "";
         } else if (qName.equalsIgnoreCase("description")) {
             description = value;
-            value = "";
         } else if (qName.equalsIgnoreCase("fulltext")) {
             fulltext = value;
-            value = "";
         }
     }
 
@@ -44,15 +48,15 @@ public class ContentBridgingHandler extends DefaultHandler {
         return identifier;
     }
 
-    public String getFormat() {
+    String getFormat() {
         return format;
     }
 
-    public String getDescription() {
+    String getDescription() {
         return description;
     }
 
-    public String getFulltext() {
+    String getFulltext() {
         return fulltext;
     }
 }

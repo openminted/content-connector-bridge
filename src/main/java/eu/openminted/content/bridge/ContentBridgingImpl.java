@@ -6,13 +6,14 @@ import eu.openminted.content.openaire.OpenAireSolrClient;
 import eu.openminted.registry.domain.Facet;
 import eu.openminted.registry.domain.Value;
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrClient;
-import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -60,10 +61,20 @@ public class ContentBridgingImpl implements ContentBridging {
     @org.springframework.beans.factory.annotation.Value("${solr.query.limit}")
     private String queryLimit;
 
-    private int limit;
-
     @org.springframework.beans.factory.annotation.Value("${solr.query.output.field}")
     private String queryOutputField;
+
+    @org.springframework.beans.factory.annotation.Value("${solr.local.default.collection}")
+    private String localDefaultCollection;
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+    private XPath xpath = XPathFactory.newInstance().newXPath();
+
+    private int limit;
 
     @PostConstruct
     void init() {
@@ -82,13 +93,12 @@ public class ContentBridgingImpl implements ContentBridging {
     @Override
     public void bridge(Query query) {
         try {
-            OpenAireSolrClient client = new OpenAireSolrClient();
-            client.setDefaultCollection(defaultCollection);
-            client.setHosts(hosts);
-            client.setQueryLimit(limit);
+            OpenAireSolrClient client = new OpenAireSolrClient(CloudSolrClient.class.getName(), hosts, defaultCollection, limit);
+
             try {
+                Resource resource = applicationContext.getResource("classpath:openaire_profile.xml");
                 client.fetchMetadata(query,
-                        new ContentBridgingStreamingResponseCallback(queryOutputField, localHost));
+                        new ContentBridgingStreamingResponseCallback(queryOutputField, localHost, localDefaultCollection, resource));
             } catch (IOException e) {
                 log.info("Fetching metadata has been interrupted. See debug for details!");
                 log.debug("ContentBridging.bridge", e);
@@ -114,20 +124,16 @@ public class ContentBridgingImpl implements ContentBridging {
         query.setFrom(0);
         query.setTo(1);
 
-        SolrClient solrClient = new HttpSolrClient.Builder(localHost).build();
-        OpenAireSolrClient client = new OpenAireSolrClient();
+        OpenAireSolrClient client = new OpenAireSolrClient(HttpSolrClient.class.getName(), localHost, localDefaultCollection, limit);
         SearchResult searchResult = new SearchResult();
-        searchResult.setFacets(new ArrayList<>());
 
         if (query.getFacets() == null) query.setFacets(new ArrayList<>());
 
-
-        SolrQuery solrQuery = client.queryBuilder(query);
         QueryResponse queryResponse = null;
         Map<String, Facet> facets = new HashMap<>();
 
         try {
-            queryResponse = solrClient.query(solrQuery);
+            queryResponse = client.query(query);
             searchResult.setFrom((int) queryResponse.getResults().getStart());
             searchResult.setTo((int) queryResponse.getResults().getStart() + queryResponse.getResults().size());
             searchResult.setTotalHits((int) queryResponse.getResults().getNumFound());
@@ -153,14 +159,12 @@ public class ContentBridgingImpl implements ContentBridging {
             searchResult.setPublications(new ArrayList<>());
 
             for (SolrDocument document : queryResponse.getResults()) {
-                String doc = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + document
-                        .getFieldValues(queryOutputField).toArray()[0].toString();
+                String doc = document.getFieldValues(queryOutputField).toArray()[0].toString();
                 searchResult.getPublications().add(doc);
             }
-        } catch (SolrServerException e) {
-            log.error("search.SolrServerException", e);
-        } catch (IOException e) {
-            log.error("search.IOException", e);
+        }
+        catch (Exception e) {
+            log.error("search.Exception", e);
         }
         return searchResult;
     }
@@ -202,47 +206,8 @@ public class ContentBridgingImpl implements ContentBridging {
      */
     private void setDefaultConnection() {
         InputStream inputStream;
-        URLConnection con;
         try {
-            URL url = new URL(getProfileUrl);
-            Authenticator.setDefault(new Authenticator() {
-
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("admin", "driver".toCharArray());
-                }
-            });
-
-            try {
-                con = url.openConnection();
-                inputStream = con.getInputStream();
-            } catch (SSLHandshakeException e) {
-
-                // Create a trust manager that does not validate certificate chains
-                TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }};
-
-                // Install the all-trusting trust manager
-                SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new SecureRandom());
-                HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-                con = url.openConnection();
-                inputStream = con.getInputStream();
-            }
-
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            XPath xpath = XPathFactory.newInstance().newXPath();
-
+            inputStream = connectToOpenAireServices(new URL(getProfileUrl));
             Document doc = dbf.newDocumentBuilder().parse(inputStream);
             String value = (String) xpath.evaluate("//RESOURCE_PROFILE/BODY/CONFIGURATION/SERVICE_PROPERTIES/PROPERTY[@key=\"mdformat\"]/@value", doc, XPathConstants.STRING);
 
@@ -269,6 +234,49 @@ public class ContentBridgingImpl implements ContentBridging {
 
             log.error("Error parsing value - ParserConfigurationException", e);
         }
+    }
+
+    private InputStream connectToOpenAireServices(URL url)
+            throws IOException, NoSuchAlgorithmException, KeyManagementException {
+        InputStream inputStream;
+        URLConnection con;
+
+        Authenticator.setDefault(new Authenticator() {
+
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication("admin", "driver".toCharArray());
+            }
+        });
+
+        try {
+            con = url.openConnection();
+            inputStream = con.getInputStream();
+        } catch (SSLHandshakeException e) {
+
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }};
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            con = url.openConnection();
+            inputStream = con.getInputStream();
+        }
+
+
+        return inputStream;
     }
 
     String getDefaultCollection() {

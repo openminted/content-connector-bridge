@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RESOURCE_PROFILE>
+    <HEADER>
+        <RESOURCE_IDENTIFIER value="2-8b9503d9-8a86-4330-93ef-7e0cd9bc87c2_TURGb3JtYXREU1Jlc291cmNlcy9NREZvcm1hdERTUmVzb3VyY2VUeXBl"/>
+        <RESOURCE_TYPE value="MDFormatDSResourceType"/>
+        <RESOURCE_KIND value="MDFormatDSResources"/>
+        <RESOURCE_URI value=""/>
+        <DATE_OF_CREATION value="2017-04-26T13:04:44+00:00"/>
+    </HEADER>
+    <BODY>
+        <CONFIGURATION>
+            <NAME>DMF</NAME>
+            <DESCRIPTION>Openaire Metadata Format</DESCRIPTION>
+            <INTERPRETATION>openaire</INTERPRETATION>
+            <SCHEMA uri=""/>
+        </CONFIGURATION>
+        <STATUS>
+            <LAYOUTS>
+                <LAYOUT name="index">
+                    <FIELDS>
+                        <FIELD indexable="false" name="oafentity" result="true" stat="false" tokenizable="true" xpath="//*[local-name() = 'entity']"/>
+                        <FIELD indexable="true" name="oaftype" result="false" stat="false" tokenizable="false" value="local-name(//*[local-name()='entity']/*)"/>
+                        <FIELD indexable="true" name="objIdentifier" result="false" stat="false" tokenizable="false" xpath="//header/dri:objIdentifier"/>
+
+                        <!-- DATASOURCE FIELDS -->
+                        <FIELD indexable="true" name="datasourceofficialname" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/officialname"/>
+                        <FIELD indexable="true" name="datasourceenglishname" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/englishname"/>
+                        <FIELD indexable="true" name="datasourcewebsiteurl" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/websiteurl"/>
+                        <FIELD indexable="true" name="datasourcelogourl" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/logourl"/>
+                        <FIELD indexable="true" name="datasourcecontactemail" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/contactemail"/>
+                        <FIELD indexable="true" name="datasourceoddescription" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/oddescription"/>
+                        <FIELD indexable="true" name="datasourceodnumberofitems" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/odnumberofitems"/>
+                        <FIELD indexable="true" name="datasourceodnumberofitemsdate" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='datasource']/odnumberofitemsdate"/>
+                        <FIELD indexable="true" name="datasourceodsubjects" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/odsubjects"/>
+                        <FIELD indexable="true" name="datasourceodlanguages" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/odlanguages"/>
+                        <FIELD indexable="true" name="datasourceodcontenttypes" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/odcontenttypes"/>
+                        <FIELD indexable="true" multivalued="false" name="datasourcetypeid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/datasourcetype/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="datasourcetypename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/datasourcetype/@classname"/>
+                        <FIELD indexable="true" multivalued="false" name="datasourcetypeuiid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/datasourcetypeui/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="datasourcetypeuiname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/datasourcetypeui/@classname"/>
+                        <FIELD indexable="true" multivalued="false" name="datasourcecompatibilityid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/openairecompatibility/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="datasourcecompatibilityname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/openairecompatibility/@classname"/>
+
+                        <!-- ORGANIZATION FIELDS -->
+                        <FIELD indexable="true" name="organizationlegalshortname" result="false" stat="false" type="ngramtext" xpath="//*[local-name()='entity']/*[local-name()='organization']/legalshortname"/>
+                        <FIELD indexable="true" name="organizationlegalname" result="false" stat="false" type="ngramtext" xpath="//*[local-name()='entity']/*[local-name()='organization']/legalname"/>
+                        <FIELD indexable="true" name="organizationwebsiteurl" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/websiteurl"/>
+                        <FIELD indexable="true" name="organizationlogourl" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/logourl"/>
+                        <FIELD indexable="true" name="organizationeclegalbody" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/eclegalbody"/>
+                        <FIELD indexable="true" name="organizationeclegalperson" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/eclegalperson"/>
+                        <FIELD indexable="true" name="organizationecnonprofit" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecnonprofit"/>
+                        <FIELD indexable="true" name="organizationecresearchorganization" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecresearchorganization"/>
+                        <FIELD indexable="true" name="organizationecinternationalorganizationeurinterests" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecinternationalorganizationeurinterests"/>
+                        <FIELD indexable="true" name="organizationecinternationalorganization" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecinternationalorganization"/>
+                        <FIELD indexable="true" name="organizationecenterprise" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecenterprise"/>
+                        <FIELD indexable="true" name="organizationecsmevalidated" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecsmevalidated"/>
+                        <FIELD indexable="true" name="organizationecnutscode" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/ecnutscode"/>
+                        <FIELD indexable="true" name="organizationcollectedfrom" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/collectedfrom"/>
+                        <FIELD indexable="true" multivalued="false" name="organizationcountryid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/country/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="organizationcountryname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='organization']/country/@classname"/>
+
+                        <!-- PERSON FIELDS -->
+                        <FIELD indexable="true" name="personfirstname" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/firstname"/>
+                        <FIELD indexable="true" name="personsecondnames" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/secondnames"/>
+                        <FIELD indexable="true" name="personfullname" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/fullname"/>
+                        <FIELD indexable="true" name="personfax" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/fax"/>
+                        <FIELD indexable="true" name="personemail" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/email"/>
+                        <FIELD indexable="true" name="personphone" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/phone"/>
+                        <FIELD indexable="true" name="personcollectedfrom" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='person']/collectedfrom"/>
+                        <FIELD indexable="true" multivalued="false" name="personcountryid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='person']/nationality/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="personcountryname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='person']/nationality/@classname"/>
+
+                        <!-- PROJECT FIELDS -->
+                        <FIELD indexable="true" name="projectwebsiteurl" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='project']/websiteurl"/>
+                        <FIELD indexable="true" name="projectcode" result="false" stat="false" type="ngramtext" xpath="//*[local-name()='entity']/*[local-name()='project']/code"/>
+                        <FIELD indexable="true" name="projectcode_nt" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/code"/>
+                        <FIELD indexable="true" name="projectacronym" result="false" stat="false" type="ngramtext" xpath="//*[local-name()='entity']/*[local-name()='project']/acronym"/>
+                        <FIELD indexable="true" name="projecttitle" result="false" stat="false" type="ngramtext" xpath="//*[local-name()='entity']/*[local-name()='project']/title"/>
+                        <FIELD indexable="true" multivalued="false" name="projectstartdate" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='project']/startdate"/>
+                        <FIELD indexable="true" multivalued="false" name="projectstartyear" result="false" stat="false" tokenizable="false" value="dnet:extractYear(//*[local-name()='entity']/*[local-name()='project']/startdate)"/>
+                        <FIELD indexable="true" multivalued="false" name="projectenddate" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='project']/enddate"/>
+                        <FIELD indexable="true" multivalued="false" name="projectendyear" result="false" stat="false" tokenizable="false" value="dnet:extractYear(//*[local-name()='entity']/*[local-name()='project']/enddate)"/>
+                        <FIELD indexable="true" multivalued="false" name="projectcallidentifier" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/callidentifier"/>
+                        <FIELD indexable="true" name="projectkeywords" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='project']/keywords"/>
+                        <FIELD indexable="true" multivalued="false" name="projectduration" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/duration"/>
+                        <FIELD indexable="true" multivalued="false" name="projectecsc39" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/ecsc39"/>
+                        <FIELD indexable="true" multivalued="false" name="projectoamandatepublications" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/oamandatepublications"/>
+                        <FIELD indexable="true" multivalued="false" name="projectecarticle29_3" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/ecarticle29_3"/>
+                        <FIELD indexable="true" name="projectsubject" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/subjects"/>
+                        <FIELD indexable="true" name="projectcollectedfrom" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='project']/collectedfrom"/>
+                        <FIELD indexable="true" multivalued="false" name="projectcontracttypeid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/contracttype/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="projectcontracttypename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/contracttype/@classname"/>
+                        <FIELD indexable="true" name="fundinglevel0_id" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_0/id"/>
+                        <FIELD indexable="true" name="fundinglevel0_name" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_0/name"/>
+                        <FIELD indexable="true" name="fundinglevel0_description" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_0/description"/>
+                        <FIELD indexable="true" name="fundinglevel1_id" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_1/id"/>
+                        <FIELD indexable="true" name="fundinglevel1_name" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_1/name"/>
+                        <FIELD indexable="true" name="fundinglevel1_description" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_1/description"/>
+                        <FIELD indexable="true" name="fundinglevel2_id" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_2/id"/>
+                        <FIELD indexable="true" name="fundinglevel2_name" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_2/name"/>
+                        <FIELD indexable="true" name="fundinglevel2_description" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree//funding_level_2/description"/>
+                        <!--  PROJECTS' FUNDER FIELDS: indexable only with the new funding path/context handling -->
+                        <FIELD indexable="true" name="funderid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree/funder/id"/>
+                        <FIELD indexable="true" name="fundershortname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree/funder/shortname"/>
+                        <FIELD indexable="true" name="fundername" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree/funder/name"/>
+                        <FIELD indexable="true" name="funderoriginalname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree/funder/originalname"/>
+                        <FIELD indexable="true" name="funderjurisdiction" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='project']/fundingtree/funder/jurisdiction"/>
+
+                        <!-- RESULT FIELDS -->
+                        <FIELD indexable="true" name="resulttitle" result="false" stat="false" xpath="//*[local-name() = 'entity']/*[local-name() ='result']/title | //*[local-name()='entity']/*[local-name()='result']/children/result/title"/>
+                        <FIELD indexable="true" name="resulttitleclass" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/title/@classname"/>
+                        <FIELD indexable="true" name="resultsubject" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/subject"/>
+                        <FIELD indexable="true" name="resultsubjectclass" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/subject/@classname"/>
+                        <FIELD indexable="true" name="resultdate" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='result']/relevantdate"/>
+                        <FIELD indexable="true" name="resultdateclass" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/relevantdate/@classname"/>
+                        <FIELD indexable="true" multivalued="false" name="resultstoragedate" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='result']/storagedate"/>
+                        <FIELD indexable="true" multivalued="false" name="resultembargoenddate" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='result']/embargoenddate"/>
+                        <FIELD indexable="true" multivalued="false" name="resultembargoendyear" result="false" stat="false" tokenizable="false" value="dnet:extractYear(//*[local-name()='entity']/*[local-name()='result']/embargoenddate)"/>
+                        <FIELD indexable="true" multivalued="false" name="resulttypeid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/resulttype/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="resulttypename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/resulttype/@classname"/>
+                        <FIELD indexable="true" multivalued="false" name="resultlanguageid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/language/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="resultlanguagename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/language/@classname"/>
+                        <FIELD indexable="true" name="resultpublisher" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='result']/*[local-name()='publisher']"/>
+                        <FIELD indexable="true" name="resultdescription" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='result']//*[local-name()='description']"/>
+                        <FIELD indexable="true" name="resultrights" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/licence/@classname"/>
+                        <FIELD indexable="true" name="resultrightsid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/licence/@classid"/>
+                        <FIELD indexable="true" multivalued="false" name="resultbestlicense" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classname"/>
+                        <FIELD indexable="true" multivalued="false" name="resultbestlicenseid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classid"/>
+                        <FIELD indexable="true" name="resultidentifier" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/webresource/*[local-name()='url']"/>
+                        <FIELD indexable="true" multivalued="false" name="resultdateofacceptance" result="false" stat="false" type="date" value="//*[local-name()='entity']/*[local-name()='result']/dateofacceptance"/>
+                        <FIELD indexable="true" multivalued="false" name="resultacceptanceyear" result="false" stat="false" tokenizable="false" value="dnet:extractYear(//*[local-name()='entity']/*[local-name()='result']/dateofacceptance)"/>
+                        <FIELD indexable="true" name="resulthostingdatasourceid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/*[local-name()='hostedby']/@id"/>
+                        <FIELD indexable="true" name="resulthostingdatasourcename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/*[local-name()='hostedby']/@name"/>
+                        <FIELD indexable="true" name="resultcollectedfromdatasourceid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/*[local-name()='collectedfrom']/@id"/>
+                        <FIELD indexable="true" name="resultcollectedfromdatasourcename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/*[local-name()='collectedfrom']/@name"/>
+                        <FIELD indexable="true" name="instancetypename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/*[local-name()='instancetype']/@classname"/>
+                        <FIELD indexable="true" name="instancetypenameid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/*[local-name()='instancetype']/@classid"/>
+                        <FIELD indexable="true" name="resultdupid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//children/result/@objidentifier"/>
+                        <FIELD indexable="true" name="externalrefsite" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//children/externalreference/sitename"/>
+                        <FIELD indexable="true" name="externalreflabel" result="false" stat="false" tokenizable="true" xpath="//*[local-name()='entity']/*//children/externalreference/label"/>
+                        <FIELD indexable="true" name="externalrefclass" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//children/externalreference/qualifier/@classid"/>
+                        <FIELD indexable="true" name="externalrefid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//children/externalreference/refidentifier"/>
+
+
+                        <!--  REL FIELDS -->
+                        <FIELD indexable="true" name="reldatasourcecompatibilityid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='datasource']/openairecompatibility/@classid"/>
+                        <FIELD indexable="true" name="relpersonid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel/to[@type='person']"/>
+                        <FIELD indexable="true" name="relperson" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='person']/fullname"/>
+                        <FIELD indexable="true" name="relprojectid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel/to[@type='project']"/>
+                        <FIELD indexable="true" name="relprojectcode" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[to/@type='project']/code"/>
+                        <FIELD indexable="true" name="relprojectname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='project']/acronym"/>
+                        <FIELD indexable="true" name="relprojecttitle" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='project']/title"/>
+                        <FIELD indexable="true" name="relcontracttypeid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='project']/contracttype/@classid"/>
+                        <FIELD indexable="true" name="relcontracttypename" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='project']/contracttype/@classname"/>
+                        <FIELD indexable="true" name="relorganizationcountryid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='organization']/country/@classid"/>
+                        <FIELD indexable="true" name="relorganizationcountryname" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='organization']/country/@classname"/>
+                        <FIELD indexable="true" name="relorganizationid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel/to[@type='organization']"/>
+                        <FIELD indexable="true" name="relorganizationname" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='organization']/legalname"/>
+                        <FIELD indexable="true" name="relorganizationshortname" result="false" stat="false" xpath="//*[local-name()='entity']/*//rel[./to/@type='organization']/legalshortname"/>
+                        <FIELD indexable="true" name="relresultid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*//rel/to[@type='result']"/>
+                        <FIELD indexable="true" name="relfundinglevel0_id" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funding_level_0"/>
+                        <FIELD indexable="true" name="relfundinglevel1_id" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funding_level_1"/>
+                        <FIELD indexable="true" name="relfundinglevel2_id" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funding_level_2"/>
+                        <FIELD indexable="true" name="relfundinglevel0_name" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funding_level_0/@name"/>
+                        <FIELD indexable="true" name="relfundinglevel1_name" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funding_level_1/@name"/>
+                        <FIELD indexable="true" name="relfundinglevel2_name" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funding_level_2/@name"/>
+                        <FIELD indexable="true" name="relinferred" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/@inferred"/>
+                        <FIELD indexable="true" name="reltrust" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/@trust"/>
+                        <FIELD indexable="true" name="relinferenceprovenance" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/@inferenceprovenance"/>
+                        <FIELD indexable="true" name="relprovenanceactionclassid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/@provenanceaction"/>
+
+                        <!--  PROJECTS' FUNDER FIELDS: indexable only with the new funding path/context handling -->
+                        <FIELD indexable="true" name="relfunderid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funder/@id"/>
+                        <FIELD indexable="true" name="relfundershortname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funder/@shortname"/>
+                        <FIELD indexable="true" name="relfundername" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funder/@name"/>
+                        <FIELD indexable="true" name="relfunderjurisdiction" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//rel/funding/funder/@jurisdiction"/>
+
+                        <!-- COMMON FIELDS -->
+                        <FIELD indexable="true" multivalued="false" name="dateofcollection" result="false" stat="false" type="date" value="//header/*[local-name()='dateOfCollection']"/>
+                        <FIELD indexable="true" name="collectedfromdatasourceid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//*[local-name()='collectedfrom']/@id"/>
+                        <FIELD indexable="true" name="collectedfromdatasourcename" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//*[local-name()='collectedfrom']/@name"/>
+                        <FIELD indexable="true" name="pid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//pid"/>
+                        <FIELD indexable="true" name="pidclassid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//pid/@classid"/>
+                        <FIELD indexable="true" name="pidclassname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//pid/@classname"/>
+                        <FIELD indexable="true" name="inferred" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//datainfo/inferred"/>
+                        <FIELD indexable="true" name="deletedbyinference" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//datainfo/deletedbyinference"/>
+                        <FIELD indexable="true" name="trust" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//datainfo/trust"/>
+                        <FIELD indexable="true" name="inferenceprovenance" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//datainfo/inferenceprovenance"/>
+                        <FIELD indexable="true" name="provenanceactionclassid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']//datainfo/provenanceaction/@classid"/>
+                        <FIELD indexable="true" name="contextid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/@id"/>
+                        <FIELD indexable="true" name="contexttype" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/@type"/>
+                        <FIELD indexable="true" name="contextname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/@label"/>
+                        <!-- Need spaecial fields for community (research initiative) context in order to exclude funders from the context browse -->
+                        <FIELD indexable="true" name="communityid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context[@type='community']/@id"/>
+                        <FIELD indexable="true" name="communityname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context[@type='community']/@label"/>
+                        <FIELD indexable="true" name="categoryid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/category/@id"/>
+                        <FIELD indexable="true" name="categoryname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/category/@label"/>
+                        <FIELD indexable="true" name="conceptid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/category//concept/@id"/>
+                        <FIELD indexable="true" name="conceptname" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/context/category//concept/@label"/>
+
+                        <!-- COUNTER FIELDS -->
+                        <FIELD header="true" indexable="true" name="counter_dedup" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_dedup/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_authorship" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_authorship/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_participation" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_participation/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_outcome" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_outcome/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_contactperson" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_contactperson/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_provision" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_provision/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_similarity" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_similarity/@value"/>
+                        <FIELD header="true" indexable="true" name="counter_publicationdataset" result="false" stored="true" type="int" xpath="/record/result/*[local-name()='header']/*[local-name()='counters']/counter_publicationdataset/@value"/>
+                    </FIELDS>
+                </LAYOUT>
+                <LAYOUT name="store">
+                    <FIELDS>
+                        <FIELD indexable="false" name="language" result="false" stat="true" xpath="//dc:language"/>
+                        <FIELD indexable="false" name="repositoryCountry" result="false" stat="true" xpath="//dr:repositoryCountry"/>
+                    </FIELDS>
+                </LAYOUT>
+            </LAYOUTS>
+        </STATUS>
+    </BODY>
+</RESOURCE_PROFILE>
