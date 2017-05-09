@@ -1,6 +1,7 @@
 package eu.openminted.content.bridge;
 
-import eu.openminted.content.mocks.MockIndex;
+import eu.openminted.content.index.IndexResponse;
+import eu.openminted.content.index.Index;
 import eu.openminted.content.mocks.MockIndexImpl;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -33,7 +33,6 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     private String outputField;
     private ContentBridgingHandler handler;
     private SAXParser saxParser;
-    private DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
     private DocumentBuilder builder;
     private Transformer transformer;
     private HttpSolrClient solrClient;
@@ -45,7 +44,8 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
         this.handler = new ContentBridgingHandler();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         this.saxParser = factory.newSAXParser();
-        this.domFactory.setIgnoringComments(true);
+        DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+        domFactory.setIgnoringComments(true);
         this.builder = domFactory.newDocumentBuilder();
         this.transformer = TransformerFactory.newInstance().newTransformer();
         this.solrClient = new HttpSolrClient.Builder(host + "/" + defaultCollection).build();
@@ -63,7 +63,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
             saxParser.parse(new InputSource(new StringReader(xml)), handler);
 
-            MockIndex index = MockIndexImpl.getIndexInstance();
+            Index index = MockIndexImpl.getIndexInstance();
 
             boolean hasAbstract = false;
             if (handler.getDescription() != null

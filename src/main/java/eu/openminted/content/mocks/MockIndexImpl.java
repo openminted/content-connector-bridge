@@ -1,6 +1,7 @@
 package eu.openminted.content.mocks;
 
-import eu.openminted.content.bridge.IndexResponse;
+import eu.openminted.content.index.Index;
+import eu.openminted.content.index.IndexResponse;
 import eu.openminted.omtdcache.CacheDataID;
 import eu.openminted.omtdcache.CacheDataIDMD5;
 import org.apache.log4j.Logger;
@@ -16,7 +17,7 @@ import java.util.Properties;
 /***
  * This is a mocking index object
  */
-public class MockIndexImpl implements MockIndex {
+public class MockIndexImpl implements Index {
     private static Logger log = Logger.getLogger(MockIndexImpl.class.getName());
     private static Map<String, IndexResponse> index;
     private CacheDataID cacheDataIDProvider;

@@ -1,10 +1,8 @@
-package eu.openminted.content.mocks;
-
-import eu.openminted.content.bridge.IndexResponse;
+package eu.openminted.content.index;
 
 import java.util.Properties;
 
-public interface MockIndex {
+public interface Index {
     boolean containsId(String identifier);
 
     IndexResponse getOrTryAddHashId(Properties properties);
