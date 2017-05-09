@@ -26,11 +26,11 @@ class ContentIndexing {
         xpath = XPathFactory.newInstance().newXPath();
     }
 
-    static Map<String, List<String>> indexFields(InputStream is, String xml) throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
+    static Map<String, Object> indexFields(InputStream is, String xml) throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         XPath xpath = XPathFactory.newInstance().newXPath();
         Document opeinaireServiceDoc = dbf.newDocumentBuilder().parse(is);
-        Map<String, List<String>> indexedFields = new HashMap<>();
+        Map<String, Object> indexedFields = new HashMap<>();
         String fieldName;
         String expression;
         NodeList fields = (NodeList) xpath.evaluate("//RESOURCE_PROFILE/BODY/STATUS/LAYOUTS/LAYOUT/FIELDS/FIELD[@indexable=\"true\"]", opeinaireServiceDoc, XPathConstants.NODESET);
@@ -42,8 +42,8 @@ class ContentIndexing {
             expression = (String) xpath.evaluate("@xpath", field, XPathConstants.STRING);
 
             if (!fieldName.isEmpty() && !expression.isEmpty()) {
-                Map.Entry<String, List<String>> mapEntry = parseXml(xml, fieldName, expression);
-                if (mapEntry != null && mapEntry.getValue().size() > 0) {
+                Map.Entry<String, Object> mapEntry = parseXml(xml, fieldName, expression);
+                if (mapEntry != null && mapEntry.getValue() != null) {
                     indexedFields.put(mapEntry.getKey(), mapEntry.getValue());
                 }
             }
@@ -51,21 +51,23 @@ class ContentIndexing {
         return indexedFields;
     }
 
-    private static Map.Entry<String, List<String>> parseXml(String xml, String field, String expression)
+    private static Map.Entry<String, Object> parseXml(String xml, String field, String expression)
             throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
 
-        Map.Entry<String, List<String>> entry = new AbstractMap.SimpleEntry<>(field, new ArrayList<>());
+        Map.Entry<String, Object> entry;
         Document doc = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
         String value = (String) xpath.evaluate(expression, doc, XPathConstants.STRING);
 
         if (value == null || value.isEmpty()) {
             NodeList nodes = (NodeList) xpath.evaluate(expression, doc, XPathConstants.NODESET);
+            List<String> values = new ArrayList<>();
             for (int i = 0; i < nodes.getLength(); i++) {
                 if (nodes.item(i).getNodeValue() != null && !nodes.item(i).getNodeValue().isEmpty())
-                    entry.getValue().add(nodes.item(i).getNodeValue());
+                    values.add(nodes.item(i).getNodeValue());
             }
+            entry = new AbstractMap.SimpleEntry<>(field, values);
         } else {
-            entry.getValue().add(value);
+            entry = new AbstractMap.SimpleEntry<>(field, value);
         }
         return entry;
     }

@@ -39,7 +39,8 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     private HttpSolrClient solrClient;
     private Resource resource;
 
-    ContentBridgingStreamingResponseCallback(String field, String host, String defaultCollection, Resource resource) throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
+    ContentBridgingStreamingResponseCallback(String field, String host, String defaultCollection, Resource resource)
+            throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
         this.outputField = field;
         this.handler = new ContentBridgingHandler();
         SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -117,13 +118,12 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                 String xmlOutput = result.getWriter().toString();
 
                 SolrInputDocument solrInputDocument = new SolrInputDocument();
-                Map<String, List<String>> indexedfields = null;
+                Map<String, Object> indexedFields = null;
 
                 try {
                     InputStream is = resource.getInputStream();
-                    indexedfields = ContentIndexing.indexFields(is, xmlOutput);
+                    indexedFields = ContentIndexing.indexFields(is, xmlOutput);
 
-                    System.out.println(indexedfields);
                 } catch (ParserConfigurationException e) {
                     log.error(this.getClass().toString() + ": Parser Configuration exception", e);
                 } catch (XPathExpressionException e) {
@@ -136,8 +136,8 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                     solrInputDocument.setField(f.getKey(), f.getValue());
                 }
 
-                if (indexedfields != null)
-                    for (Map.Entry<String, List<String>> p : indexedfields.entrySet()) {
+                if (indexedFields != null)
+                    for (Map.Entry<String, Object> p : indexedFields.entrySet()) {
                         solrInputDocument.addField(p.getKey(), p.getValue());
                     }
                 solrInputDocument.setField(outputField, xmlOutput);
