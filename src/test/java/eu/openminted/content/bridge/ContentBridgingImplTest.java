@@ -36,10 +36,10 @@ public class ContentBridgingImplTest {
 
         query.getParams().put("sort", new ArrayList<>());
         query.getParams().get("sort").add("__indexrecordidentifier asc");
-        query.setKeyword("*:*");
+        query.setKeyword("digital");
 
-        query.getParams().put("resultrights", new ArrayList<>());
-        query.getParams().get("resultrights").add("Open Access");
+//        query.getParams().put("resultrights", new ArrayList<>());
+//        query.getParams().get("resultrights").add("Open Access");
 
         contentBridging.bridge(query);
     }
