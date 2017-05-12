@@ -6,8 +6,6 @@ import eu.openminted.content.openaire.OpenAireSolrClient;
 import eu.openminted.registry.domain.Facet;
 import eu.openminted.registry.domain.Value;
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -52,20 +50,26 @@ public class ContentBridgingImpl implements ContentBridging {
     @org.springframework.beans.factory.annotation.Value("${services.openaire.getProfile}")
     private String getProfileUrl;
 
-    @org.springframework.beans.factory.annotation.Value("${solr.hosts}")
-    private String hosts;
+    @org.springframework.beans.factory.annotation.Value("${solr.remote.client.type}")
+    private String remoteClientType;
 
-    @org.springframework.beans.factory.annotation.Value("${solr.local.host}")
-    private String localHost;
+    @org.springframework.beans.factory.annotation.Value("${solr.local.client.type}")
+    private String localClientType;
 
-    @org.springframework.beans.factory.annotation.Value("${solr.query.limit}")
-    private String queryLimit;
+    @org.springframework.beans.factory.annotation.Value("${solr.remote.hosts}")
+    private String remoteHosts;
 
-    @org.springframework.beans.factory.annotation.Value("${solr.query.output.field}")
-    private String queryOutputField;
+    @org.springframework.beans.factory.annotation.Value("${solr.local.hosts}")
+    private String localHosts;
 
     @org.springframework.beans.factory.annotation.Value("${solr.local.default.collection}")
     private String localDefaultCollection;
+
+    @org.springframework.beans.factory.annotation.Value("${solr.query.limit:0}")
+    private Integer queryLimit;
+
+    @org.springframework.beans.factory.annotation.Value("${solr.query.output.field}")
+    private String queryOutputField;
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -74,31 +78,20 @@ public class ContentBridgingImpl implements ContentBridging {
 
     private XPath xpath = XPathFactory.newInstance().newXPath();
 
-    private int limit;
-
     @PostConstruct
     void init() {
-        try {
-            limit = Integer.parseInt(queryLimit);
-        } catch (NumberFormatException e) {
-            log.error("ContentBridging: Wrong format of limit number.", e);
-            limit = 0;
-        } catch (Exception e) {
-            log.error("ContentBridging: Exception during reading limit number.", e);
-            limit = 0;
-        }
         setDefaultConnection();
     }
 
     @Override
     public void bridge(Query query) {
         try {
-            OpenAireSolrClient client = new OpenAireSolrClient(CloudSolrClient.class.getName(), hosts, defaultCollection, limit);
+            OpenAireSolrClient client = new OpenAireSolrClient(remoteClientType, remoteHosts, defaultCollection, queryLimit);
 
             try {
                 Resource resource = applicationContext.getResource("classpath:openaire_profile.xml");
                 client.fetchMetadata(query,
-                        new ContentBridgingStreamingResponseCallback(queryOutputField, localHost, localDefaultCollection, resource));
+                        new ContentBridgingStreamingResponseCallback(localClientType, queryOutputField, localHosts, localDefaultCollection, resource));
             } catch (IOException e) {
                 log.info("Fetching metadata has been interrupted. See debug for details!");
                 log.debug("ContentBridging.bridge", e);
@@ -124,7 +117,7 @@ public class ContentBridgingImpl implements ContentBridging {
         query.setFrom(0);
         query.setTo(1);
 
-        OpenAireSolrClient client = new OpenAireSolrClient(HttpSolrClient.class.getName(), localHost, localDefaultCollection, limit);
+        OpenAireSolrClient client = new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection, queryLimit);
         SearchResult searchResult = new SearchResult();
 
         if (query.getFacets() == null) query.setFacets(new ArrayList<>());
@@ -283,8 +276,8 @@ public class ContentBridgingImpl implements ContentBridging {
         return defaultCollection;
     }
 
-    public String getLocalHost() {
-        return localHost;
+    public String getLocalHosts() {
+        return localHosts;
     }
 
     public String getQueryOutputField() {

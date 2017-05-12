@@ -1,13 +1,11 @@
 package eu.openminted.content.bridge;
 
-import eu.openminted.content.index.IndexResponse;
 import eu.openminted.content.index.Index;
+import eu.openminted.content.index.IndexResponse;
 import eu.openminted.content.mocks.MockIndexImpl;
+import eu.openminted.content.openaire.OpenAireSolrClient;
 import org.apache.log4j.Logger;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.StreamingResponseCallback;
-import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.core.io.Resource;
@@ -35,10 +33,10 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     private SAXParser saxParser;
     private DocumentBuilder builder;
     private Transformer transformer;
-    private HttpSolrClient solrClient;
+    private OpenAireSolrClient openAireSolrClient;
     private Resource resource;
 
-    ContentBridgingStreamingResponseCallback(String field, String host, String defaultCollection, Resource resource)
+    ContentBridgingStreamingResponseCallback(String solrClientType, String field, String host, String defaultCollection, Resource resource)
             throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
         this.outputField = field;
         this.handler = new ContentBridgingHandler();
@@ -48,9 +46,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
         domFactory.setIgnoringComments(true);
         this.builder = domFactory.newDocumentBuilder();
         this.transformer = TransformerFactory.newInstance().newTransformer();
-        this.solrClient = new HttpSolrClient.Builder(host + "/" + defaultCollection).build();
-        this.solrClient.setRequestWriter(new BinaryRequestWriter());
-
+        this.openAireSolrClient = new OpenAireSolrClient(solrClientType, host, defaultCollection, 0);
         this.resource = resource;
     }
 
@@ -142,13 +138,10 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                     }
                 solrInputDocument.setField(outputField, xmlOutput);
 
-                solrClient.add(solrInputDocument);
-                solrClient.commit();
+                openAireSolrClient.add(solrInputDocument);
             }
         } catch (SAXException | IOException | TransformerException e) {
             log.error("ContentBridgingStreamingResponseCallback.streamSolrDocument", e);
-        } catch (SolrServerException e) {
-            log.error("ContentBridgingStreamingResponseCallback.SolrServerException", e);
         }
     }
 
