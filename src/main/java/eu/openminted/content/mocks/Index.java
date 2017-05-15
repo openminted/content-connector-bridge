@@ -1,4 +1,4 @@
-package eu.openminted.content.index;
+package eu.openminted.content.mocks;
 
 import java.util.Properties;
 

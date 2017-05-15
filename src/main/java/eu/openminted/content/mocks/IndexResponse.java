@@ -1,4 +1,4 @@
-package eu.openminted.content.index;
+package eu.openminted.content.mocks;
 
 public class IndexResponse {
     private String openaAireId;
@@ -10,7 +10,7 @@ public class IndexResponse {
         return openaAireId;
     }
 
-    public void setOpenaAireId(String openaAireId) {
+    void setOpenaAireId(String openaAireId) {
         this.openaAireId = openaAireId;
     }
 
@@ -18,7 +18,7 @@ public class IndexResponse {
         return hashKey;
     }
 
-    public void setHashKey(String hashKey) {
+    void setHashKey(String hashKey) {
         this.hashKey = hashKey;
     }
 
@@ -26,7 +26,7 @@ public class IndexResponse {
         return mimeType;
     }
 
-    public void setMimeType(String mimeType) {
+    void setMimeType(String mimeType) {
         this.mimeType = mimeType;
     }
 

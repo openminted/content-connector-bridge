@@ -19,6 +19,10 @@
             <version>[0.0.1-SNAPSHOT, )</version>
             <exclusions>
                 <exclusion>
+                    <groupId>eu.openminted</groupId>
+                    <artifactId>omtd-cache-id</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
@@ -29,6 +33,29 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>eu.openminted</groupId>
+            <artifactId>content-connector-index</artifactId>
+            <version>[0.0.1-SNAPSHOT, )</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>eu.openminted</groupId>
+                    <artifactId>omtd-cache-id</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

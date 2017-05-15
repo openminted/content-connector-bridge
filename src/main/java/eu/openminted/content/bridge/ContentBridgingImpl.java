@@ -2,6 +2,8 @@ package eu.openminted.content.bridge;
 
 import eu.openminted.content.connector.Query;
 import eu.openminted.content.connector.SearchResult;
+import eu.openminted.content.index.IndexConfiguration;
+import eu.openminted.content.index.IndexPublication;
 import eu.openminted.content.openaire.OpenAireSolrClient;
 import eu.openminted.registry.domain.Facet;
 import eu.openminted.registry.domain.Value;
@@ -74,6 +76,12 @@ public class ContentBridgingImpl implements ContentBridging {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private IndexConfiguration esConfig;
+
+    @Autowired
+    private IndexPublication index;
+
     private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     private XPath xpath = XPathFactory.newInstance().newXPath();
@@ -90,8 +98,9 @@ public class ContentBridgingImpl implements ContentBridging {
 
             try {
                 Resource resource = applicationContext.getResource("classpath:openaire_profile.xml");
+
                 client.fetchMetadata(query,
-                        new ContentBridgingStreamingResponseCallback(localClientType, queryOutputField, localHosts, localDefaultCollection, resource));
+                        new ContentBridgingStreamingResponseCallback(index, localClientType, queryOutputField, localHosts, localDefaultCollection, resource));
             } catch (IOException e) {
                 log.info("Fetching metadata has been interrupted. See debug for details!");
                 log.debug("ContentBridging.bridge", e);

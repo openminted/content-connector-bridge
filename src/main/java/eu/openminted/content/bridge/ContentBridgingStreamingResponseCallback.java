@@ -1,8 +1,7 @@
 package eu.openminted.content.bridge;
 
-import eu.openminted.content.index.Index;
-import eu.openminted.content.index.IndexResponse;
-import eu.openminted.content.mocks.MockIndexImpl;
+import eu.openminted.content.index.IndexPublication;
+import eu.openminted.content.index.entities.Publication;
 import eu.openminted.content.openaire.OpenAireSolrClient;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.StreamingResponseCallback;
@@ -35,8 +34,9 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     private Transformer transformer;
     private OpenAireSolrClient openAireSolrClient;
     private Resource resource;
+    private IndexPublication index;
 
-    ContentBridgingStreamingResponseCallback(String solrClientType, String field, String host, String defaultCollection, Resource resource)
+    ContentBridgingStreamingResponseCallback(IndexPublication index, String solrClientType, String field, String host, String defaultCollection, Resource resource)
             throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
         this.outputField = field;
         this.handler = new ContentBridgingHandler();
@@ -48,6 +48,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
         this.transformer = TransformerFactory.newInstance().newTransformer();
         this.openAireSolrClient = new OpenAireSolrClient(solrClientType, host, defaultCollection, 0);
         this.resource = resource;
+        this.index = index;
     }
 
     @Override
@@ -59,30 +60,25 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
             saxParser.parse(new InputSource(new StringReader(xml)), handler);
 
-            Index index = MockIndexImpl.getIndexInstance();
-
             boolean hasAbstract = false;
             if (handler.getDescription() != null
                     && !handler.getDescription().isEmpty()) {
                 hasAbstract = true;
             }
 
-            IndexResponse indexResponse = null;
             Document doc = builder.parse(new InputSource(new StringReader(xml)));
-            Properties properties = new Properties();
-            properties.setProperty("identifier", handler.getIdentifier());
-            properties.setProperty("fulltext", handler.getFulltext());
-            properties.setProperty("mimetype", handler.getFormat());
 
-            if ((indexResponse = index.getOrTryAddHashId(properties)) != null) {
+            if (index.containsPublication(handler.getIdentifier())) {
+
+                Publication indexResponse = index.getPublication(handler.getIdentifier());
 
                 Node node = doc.getElementsByTagName("oaf:result").item(0);
                 Element indexInfoElement = doc.createElement("indexinfo");
 
                 Attr openaireAttrNode = doc.createAttribute("id");
-                openaireAttrNode.setValue(indexResponse.getOpenaAireId());
+                openaireAttrNode.setValue(indexResponse.getOpenaireId());
 
-                Text hashKeyText = doc.createTextNode(indexResponse.getHashKey());
+                Text hashKeyText = doc.createTextNode(indexResponse.getHashValue());
                 Text mimeTypeText = doc.createTextNode(indexResponse.getMimeType());
                 Text urlText = doc.createTextNode(indexResponse.getUrl());
 
@@ -102,9 +98,9 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                 node.appendChild(indexInfoElement);
             }
 
-            System.out.println("\nPDF for " + handler.getIdentifier() + " exists: " + index.containsId(handler.getIdentifier()) + "\n");
+            log.debug("\nPDF for " + handler.getIdentifier() + " exists: " + index.containsPublication(handler.getIdentifier()) + "\n");
 
-            if (hasAbstract || index.containsId(handler.getIdentifier())) {
+            if (hasAbstract || index.containsPublication(handler.getIdentifier())) {
                 // Create the new xml with the additional elements
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 StreamResult result = new StreamResult(new StringWriter());

@@ -1,7 +1,5 @@
 package eu.openminted.content.mocks;
 
-import eu.openminted.content.index.Index;
-import eu.openminted.content.index.IndexResponse;
 import eu.openminted.omtdcache.CacheDataID;
 import eu.openminted.omtdcache.CacheDataIDMD5;
 import org.apache.log4j.Logger;
