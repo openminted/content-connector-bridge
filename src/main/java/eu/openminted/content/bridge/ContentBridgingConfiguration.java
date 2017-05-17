@@ -6,19 +6,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
-
 @Configuration
 @ComponentScan("eu.openminted.content.bridge")
 public class ContentBridgingConfiguration {
     @Bean
-    private IndexConfiguration getEsConfig() throws Exception {
+    public IndexConfiguration getEsConfig() throws Exception {
         return IndexConfiguration.getInstance();
     }
 
     @Bean
     public IndexPublication getIndex() throws Exception {
-        IndexPublication index = new IndexPublication(getEsConfig());
-        return index;
+        return new IndexPublication(getEsConfig());
     }
 }
