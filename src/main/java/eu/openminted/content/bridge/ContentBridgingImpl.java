@@ -281,7 +281,7 @@ public class ContentBridgingImpl implements ContentBridging {
         return inputStream;
     }
 
-    String getDefaultCollection() {
+    public String getDefaultCollection() {
         return defaultCollection;
     }
 
@@ -291,5 +291,14 @@ public class ContentBridgingImpl implements ContentBridging {
 
     public String getQueryOutputField() {
         return queryOutputField;
+    }
+
+
+    public void setQueryLimit(Integer queryLimit) {
+        this.queryLimit = queryLimit;
+    }
+
+    public Integer getQueryLimit() {
+        return queryLimit;
     }
 }
