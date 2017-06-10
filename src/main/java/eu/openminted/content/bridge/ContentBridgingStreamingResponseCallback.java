@@ -72,6 +72,10 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
                 Publication indexResponse = index.getPublication(handler.getIdentifier());
 
+                //todo: Remove the following lines after correction the url string
+                if (indexResponse.getUrl().contains("pdfs/media/pdfs"))
+                    indexResponse.setUrl(indexResponse.getUrl().replace("pdfs/media/pdfs", "pdfs"));
+
                 Node node = doc.getElementsByTagName("oaf:result").item(0);
                 Element indexInfoElement = doc.createElement("indexinfo");
 
