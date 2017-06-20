@@ -28,6 +28,10 @@ public class AppStartupRunner implements ApplicationRunner {
         query.getParams().put("sort", new ArrayList<>());
         query.getParams().get("sort").add("__indexrecordidentifier asc");
 
+        query.getParams().put("resultrights", new ArrayList<>());
+        query.getParams().get("resultrights").add("Open Access");
+        query.getParams().get("resultrights").add("Embargo");
+
         String keyword = "*:*";
         int limit = 100;
 
