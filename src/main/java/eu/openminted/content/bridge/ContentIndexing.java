@@ -31,8 +31,8 @@ class ContentIndexing {
         XPath xpath = XPathFactory.newInstance().newXPath();
         Document opeinaireServiceDoc = dbf.newDocumentBuilder().parse(is);
         Map<String, Object> indexedFields = new HashMap<>();
-        String fieldName;
-        String expression;
+        String fieldName = "";
+        String expression = "";
         NodeList fields = (NodeList) xpath.evaluate("//RESOURCE_PROFILE/BODY/STATUS/LAYOUTS/LAYOUT/FIELDS/FIELD[@indexable=\"true\"]", opeinaireServiceDoc, XPathConstants.NODESET);
 
         for (int i = 0; i < fields.getLength(); i++) {

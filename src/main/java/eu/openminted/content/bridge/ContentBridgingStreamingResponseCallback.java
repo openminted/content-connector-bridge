@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 public class ContentBridgingStreamingResponseCallback extends StreamingResponseCallback {
     private static Logger log = Logger.getLogger(ContentBridgingStreamingResponseCallback.class.getName());
@@ -56,6 +59,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     /**
      * Reads the solrDocument and creates a new SolrInputDocument
      * that is inserted into the new Solr index.
+     *
      * @param solrDocument
      */
     @Override
@@ -140,12 +144,50 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
                 if (indexedFields != null)
                     for (Map.Entry<String, Object> p : indexedFields.entrySet()) {
-                        solrInputDocument.addField(p.getKey(), p.getValue());
+
+                        if (p.getKey().equalsIgnoreCase("resultdateofacceptance")) {
+                            Date date = null;
+
+                            String[] dateOfAcceptance = p.getValue().toString().split("-");
+                            SimpleDateFormat valueDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                            TimeZone UTC = TimeZone.getTimeZone("UTC");
+                            valueDateFormat.setTimeZone(UTC);
+                            try {
+                                switch (dateOfAcceptance.length) {
+                                    case 1:
+                                        if (!dateOfAcceptance[0].trim().isEmpty()) {
+                                            SimpleDateFormat yearFormat = new SimpleDateFormat("YYYY");
+                                            yearFormat.setTimeZone(UTC);
+                                            date = yearFormat.parse(dateOfAcceptance[0].trim());
+                                        }
+                                        break;
+                                    case 2:
+                                        SimpleDateFormat yearMonthFormat = new SimpleDateFormat("YYYY-MM");
+                                        yearMonthFormat.setTimeZone(UTC);
+                                        date = yearMonthFormat.parse(dateOfAcceptance[0] + "-" + dateOfAcceptance[1]);
+                                        break;
+                                    case 3:
+                                        SimpleDateFormat yearMonthDayFormat = new SimpleDateFormat("YYYY-MM-dd");
+                                        yearMonthDayFormat.setTimeZone(UTC);
+                                        date = yearMonthDayFormat.parse(dateOfAcceptance[0] + "-" + dateOfAcceptance[1] + "-" + dateOfAcceptance[2]);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                if (date != null) {
+                                    solrInputDocument.addField(p.getKey(), valueDateFormat.format(date));
+                                }
+                            } catch (Exception e) {
+
+                            }
+                        } else {
+                            solrInputDocument.addField(p.getKey(), p.getValue());
+                        }
                     }
                 solrInputDocument.setField(outputField, xmlOutput);
 
                 String documentIndexInfo = "";
-                if(indexResponse != null) {
+                if (indexResponse != null) {
                     solrInputDocument.setField("hashvalue", indexResponse.getHashValue());
                     solrInputDocument.setField("mimetype", indexResponse.getMimeType());
                     solrInputDocument.setField("fulltext", indexResponse.getUrl());

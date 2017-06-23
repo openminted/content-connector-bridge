@@ -35,6 +35,10 @@ public class ContentBridgingImplTest {
 
         query.getParams().put("sort", new ArrayList<>());
         query.getParams().get("sort").add("__indexrecordidentifier asc");
+        query.getParams().put("resultrights", new ArrayList<>());
+        query.getParams().get("resultrights").add("Open Access");
+        query.getParams().put("__indexrecordidentifier", new ArrayList<>());
+        query.getParams().get("__indexrecordidentifier").add("od________18::7ff13d895bc479a9143760e3ed68b6ed");
         query.setKeyword("*:*");
 
 //        query.getParams().put("resultrights", new ArrayList<>());
@@ -59,6 +63,7 @@ public class ContentBridgingImplTest {
         List<String> facets = new ArrayList<>();
         facets.add("resultrights");
         facets.add("resultrightsid");
+        facets.add("resultdateofacceptance");
         query.setFacets(facets);
 
         SearchResult searchResult = contentBridging.search(query);
