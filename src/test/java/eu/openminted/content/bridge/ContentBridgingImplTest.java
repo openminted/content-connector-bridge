@@ -37,9 +37,12 @@ public class ContentBridgingImplTest {
         query.getParams().get("sort").add("__indexrecordidentifier asc");
         query.getParams().put("resultrights", new ArrayList<>());
         query.getParams().get("resultrights").add("Open Access");
+        query.getParams().get("resultrights").add("Embargo");
         query.getParams().put("__indexrecordidentifier", new ArrayList<>());
         query.getParams().get("__indexrecordidentifier").add("od________18::7ff13d895bc479a9143760e3ed68b6ed");
         query.setKeyword("*:*");
+
+        query.setTo(1000);
 
 //        query.getParams().put("resultrights", new ArrayList<>());
 //        query.getParams().get("resultrights").add("Open Access");

@@ -32,14 +32,21 @@ public class AppStartupRunner implements ApplicationRunner {
         query.getParams().get("resultrights").add("Open Access");
         query.getParams().get("resultrights").add("Embargo");
 
+
         String keyword = "*:*";
         int limit = 100;
+        int rows = 500;
 
         // Reading application options
         try {
             if (args.containsOption("solr.query.limit")) {
                 String value = args.getOptionValues("solr.query.limit").get(0);
                 limit = Integer.parseInt(value);
+            }
+
+            if (args.containsOption("rows")) {
+                String value = args.getOptionValues("rows").get(0);
+                rows = Integer.parseInt(value);
             }
 
             if (args.containsOption("query"))
@@ -51,6 +58,7 @@ public class AppStartupRunner implements ApplicationRunner {
 
         contentBridging.setQueryLimit(limit);
         query.setKeyword(keyword);
+        query.setTo(rows);
 
         contentBridging.bridge(query);
         log.info("Finished! You may terminate the app by pressing Ctrl + C");
