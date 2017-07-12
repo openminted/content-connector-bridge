@@ -2,8 +2,8 @@ package eu.openminted.content.bridge;
 
 import eu.openminted.content.connector.Query;
 import eu.openminted.content.connector.SearchResult;
-import eu.openminted.registry.domain.Facet;
-import eu.openminted.registry.domain.Value;
+import eu.openminted.registry.core.domain.Facet;
+import eu.openminted.registry.core.domain.Value;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +51,7 @@ public class ContentBridgingImplTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void select() throws Exception {
 
         Query query = new Query();
