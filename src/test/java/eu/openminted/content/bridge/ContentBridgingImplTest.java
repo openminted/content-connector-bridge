@@ -2,8 +2,8 @@ package eu.openminted.content.bridge;
 
 import eu.openminted.content.connector.Query;
 import eu.openminted.content.connector.SearchResult;
-import eu.openminted.registry.domain.Facet;
-import eu.openminted.registry.domain.Value;
+import eu.openminted.registry.core.domain.Facet;
+import eu.openminted.registry.core.domain.Value;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,14 @@ public class ContentBridgingImplTest {
 
         query.getParams().put("sort", new ArrayList<>());
         query.getParams().get("sort").add("__indexrecordidentifier asc");
+        query.getParams().put("resultrights", new ArrayList<>());
+        query.getParams().get("resultrights").add("Open Access");
+        query.getParams().get("resultrights").add("Embargo");
+        query.getParams().put("__indexrecordidentifier", new ArrayList<>());
+        query.getParams().get("__indexrecordidentifier").add("od________18::7ff13d895bc479a9143760e3ed68b6ed");
         query.setKeyword("*:*");
+
+        query.setTo(1000);
 
 //        query.getParams().put("resultrights", new ArrayList<>());
 //        query.getParams().get("resultrights").add("Open Access");
@@ -44,7 +51,7 @@ public class ContentBridgingImplTest {
     }
 
     @Test
-    @Ignore
+//    @Ignore
     public void select() throws Exception {
 
         Query query = new Query();
@@ -59,6 +66,7 @@ public class ContentBridgingImplTest {
         List<String> facets = new ArrayList<>();
         facets.add("resultrights");
         facets.add("resultrightsid");
+        facets.add("resultdateofacceptance");
         query.setFacets(facets);
 
         SearchResult searchResult = contentBridging.search(query);

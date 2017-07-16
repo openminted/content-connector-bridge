@@ -22,8 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TimeZone;
 
 public class ContentBridgingStreamingResponseCallback extends StreamingResponseCallback {
     private static Logger log = Logger.getLogger(ContentBridgingStreamingResponseCallback.class.getName());
@@ -35,6 +38,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
     private OpenAireSolrClient openAireSolrClient;
     private Resource resource;
     private IndexPublication index;
+    private long count;
 
     ContentBridgingStreamingResponseCallback(IndexPublication index, String solrClientType, String field, String host, String defaultCollection, Resource resource)
             throws JAXBException, ParserConfigurationException, SAXException, TransformerConfigurationException {
@@ -49,8 +53,15 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
         this.openAireSolrClient = new OpenAireSolrClient(solrClientType, host, defaultCollection, 0);
         this.resource = resource;
         this.index = index;
+        this.count = 0;
     }
 
+    /**
+     * Reads the solrDocument and creates a new SolrInputDocument
+     * that is inserted into the new Solr index.
+     *
+     * @param solrDocument
+     */
     @Override
     public void streamSolrDocument(SolrDocument solrDocument) {
         try {
@@ -67,10 +78,15 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
             }
 
             Document doc = builder.parse(new InputSource(new StringReader(xml)));
+            Publication indexResponse = null;
 
             if (index.containsPublication(handler.getIdentifier())) {
 
-                Publication indexResponse = index.getPublication(handler.getIdentifier());
+                indexResponse = index.getPublication(handler.getIdentifier());
+
+                //todo: Remove the following lines after correction the url string
+                if (indexResponse.getUrl().contains("pdfs/media/pdfs"))
+                    indexResponse.setUrl(indexResponse.getUrl().replace("pdfs/media/pdfs", "pdfs"));
 
                 Node node = doc.getElementsByTagName("oaf:result").item(0);
                 Element indexInfoElement = doc.createElement("indexinfo");
@@ -97,8 +113,6 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
                 node.appendChild(indexInfoElement);
             }
-
-            log.debug("\nPDF for " + handler.getIdentifier() + " exists: " + index.containsPublication(handler.getIdentifier()) + "\n");
 
             if (hasAbstract || index.containsPublication(handler.getIdentifier())) {
                 // Create the new xml with the additional elements
@@ -130,11 +144,75 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
 
                 if (indexedFields != null)
                     for (Map.Entry<String, Object> p : indexedFields.entrySet()) {
-                        solrInputDocument.addField(p.getKey(), p.getValue());
+
+                        if (p.getKey().equalsIgnoreCase("resultdateofacceptance")) {
+                            Date date = null;
+
+                            String[] dateOfAcceptance = p.getValue().toString().split("-");
+                            SimpleDateFormat valueDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                            TimeZone UTC = TimeZone.getTimeZone("UTC");
+                            valueDateFormat.setTimeZone(UTC);
+                            try {
+                                switch (dateOfAcceptance.length) {
+                                    case 1:
+                                        if (!dateOfAcceptance[0].trim().isEmpty()) {
+                                            SimpleDateFormat yearFormat = new SimpleDateFormat("YYYY");
+                                            yearFormat.setTimeZone(UTC);
+                                            date = yearFormat.parse(dateOfAcceptance[0].trim());
+                                        }
+                                        break;
+                                    case 2:
+                                        SimpleDateFormat yearMonthFormat = new SimpleDateFormat("YYYY-MM");
+                                        yearMonthFormat.setTimeZone(UTC);
+                                        date = yearMonthFormat.parse(dateOfAcceptance[0] + "-" + dateOfAcceptance[1]);
+                                        break;
+                                    case 3:
+                                        SimpleDateFormat yearMonthDayFormat = new SimpleDateFormat("YYYY-MM-dd");
+                                        yearMonthDayFormat.setTimeZone(UTC);
+                                        date = yearMonthDayFormat.parse(dateOfAcceptance[0] + "-" + dateOfAcceptance[1] + "-" + dateOfAcceptance[2]);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                if (date != null) {
+                                    solrInputDocument.addField(p.getKey(), valueDateFormat.format(date));
+                                }
+                            } catch (Exception e) {
+
+                            }
+                        } else {
+                            solrInputDocument.addField(p.getKey(), p.getValue());
+                        }
                     }
                 solrInputDocument.setField(outputField, xmlOutput);
 
-                openAireSolrClient.add(solrInputDocument);
+                String documentIndexInfo = "";
+                if (indexResponse != null) {
+                    solrInputDocument.setField("hashvalue", indexResponse.getHashValue());
+                    solrInputDocument.setField("mimetype", indexResponse.getMimeType());
+                    solrInputDocument.setField("fulltext", indexResponse.getUrl());
+                    documentIndexInfo = handler.getIdentifier()
+                            + " contains fulltext with hashkey " + indexResponse.getHashValue()
+                            + " at " + indexResponse.getUrl() + "\n";
+                } else {
+                    documentIndexInfo = handler.getIdentifier() + " does not contain fulltext.\n";
+                }
+
+                if (solrInputDocument.getField("resultrights")
+                        .getValue()
+                        .toString()
+                        .contains("Open Access")
+                        || solrInputDocument.getField("resultrights")
+                        .getValue()
+                        .toString()
+                        .contains("Embargo")) {
+
+                    log.info(solrInputDocument.getField("resultrights").getValue().toString());
+
+                    openAireSolrClient.add(solrInputDocument);
+                    count++;
+                    log.info("Store contains " + count + " documents.\n" + documentIndexInfo);
+                }
             }
         } catch (SAXException | IOException | TransformerException e) {
             log.error("ContentBridgingStreamingResponseCallback.streamSolrDocument", e);
