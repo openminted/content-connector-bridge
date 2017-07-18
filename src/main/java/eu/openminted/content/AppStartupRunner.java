@@ -34,16 +34,10 @@ public class AppStartupRunner implements ApplicationRunner {
 
 
         String keyword = "*:*";
-        int limit = 100;
         int rows = 500;
 
         // Reading application options
         try {
-            if (args.containsOption("solr.query.limit")) {
-                String value = args.getOptionValues("solr.query.limit").get(0);
-                limit = Integer.parseInt(value);
-            }
-
             if (args.containsOption("rows")) {
                 String value = args.getOptionValues("rows").get(0);
                 rows = Integer.parseInt(value);
@@ -56,7 +50,6 @@ public class AppStartupRunner implements ApplicationRunner {
             log.error("Illegal number format at a numeric option. Continuing with limit 10");
         }
 
-        contentBridging.setQueryLimit(limit);
         query.setKeyword(keyword);
         query.setTo(rows);
 

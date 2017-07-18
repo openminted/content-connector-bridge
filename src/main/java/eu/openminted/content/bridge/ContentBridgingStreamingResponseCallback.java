@@ -50,7 +50,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
         domFactory.setIgnoringComments(true);
         this.builder = domFactory.newDocumentBuilder();
         this.transformer = TransformerFactory.newInstance().newTransformer();
-        this.openAireSolrClient = new OpenAireSolrClient(solrClientType, host, defaultCollection, 0);
+        this.openAireSolrClient = new OpenAireSolrClient(solrClientType, host, defaultCollection);
         this.resource = resource;
         this.index = index;
         this.count = 0;

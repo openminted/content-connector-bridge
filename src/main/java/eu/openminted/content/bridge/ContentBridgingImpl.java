@@ -67,9 +67,6 @@ public class ContentBridgingImpl implements ContentBridging {
     @org.springframework.beans.factory.annotation.Value("${solr.local.default.collection}")
     private String localDefaultCollection;
 
-    @org.springframework.beans.factory.annotation.Value("${solr.query.limit:0}")
-    private Integer queryLimit;
-
     @org.springframework.beans.factory.annotation.Value("${solr.query.output.field}")
     private String queryOutputField;
 
@@ -94,7 +91,7 @@ public class ContentBridgingImpl implements ContentBridging {
     @Override
     public void bridge(Query query) {
         try {
-            OpenAireSolrClient client = new OpenAireSolrClient(remoteClientType, remoteHosts, defaultCollection, queryLimit);
+            OpenAireSolrClient client = new OpenAireSolrClient(remoteClientType, remoteHosts, defaultCollection);
 
             try {
                 Resource resource = applicationContext.getResource("classpath:openaire_profile.xml");
@@ -126,7 +123,7 @@ public class ContentBridgingImpl implements ContentBridging {
         query.setFrom(0);
         query.setTo(1);
 
-        OpenAireSolrClient client = new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection, queryLimit);
+        OpenAireSolrClient client = new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection);
         SearchResult searchResult = new SearchResult();
 
         if (query.getFacets() == null) query.setFacets(new ArrayList<>());
@@ -291,14 +288,5 @@ public class ContentBridgingImpl implements ContentBridging {
 
     public String getQueryOutputField() {
         return queryOutputField;
-    }
-
-
-    public void setQueryLimit(Integer queryLimit) {
-        this.queryLimit = queryLimit;
-    }
-
-    public Integer getQueryLimit() {
-        return queryLimit;
     }
 }
