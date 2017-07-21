@@ -2,6 +2,7 @@ package eu.openminted.content.mocks;
 
 import eu.openminted.omtdcache.CacheDataID;
 import eu.openminted.omtdcache.CacheDataIDMD5;
+import eu.openminted.omtdcache.CacheDataIDSHA1;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
@@ -22,7 +23,7 @@ public class MockIndexImpl implements Index {
 
     private MockIndexImpl() {
         index = new HashMap<>();
-        cacheDataIDProvider = new CacheDataIDMD5();
+        cacheDataIDProvider = new CacheDataIDSHA1();
     }
 
     public static MockIndexImpl getIndexInstance() {
