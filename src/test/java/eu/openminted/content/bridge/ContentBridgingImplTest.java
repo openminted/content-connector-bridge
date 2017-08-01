@@ -51,7 +51,7 @@ public class ContentBridgingImplTest {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     public void select() throws Exception {
 
         Query query = new Query();

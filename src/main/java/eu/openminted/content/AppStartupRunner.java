@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-@Component
+//@Component
 public class AppStartupRunner implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(AppStartupRunner.class);
     @Autowired

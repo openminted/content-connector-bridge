@@ -1,47 +1,58 @@
 package eu.openminted.content.bridge;
 
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
 import eu.openminted.content.connector.Query;
 import eu.openminted.content.connector.SearchResult;
 import eu.openminted.content.index.IndexConfiguration;
 import eu.openminted.content.index.IndexPublication;
+import eu.openminted.content.index.entities.Publication;
 import eu.openminted.content.openaire.OpenAireSolrClient;
 import eu.openminted.registry.core.domain.Facet;
 import eu.openminted.registry.core.domain.Value;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
+import org.apache.solr.common.SolrInputDocument;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Document;
+import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.net.ssl.*;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 @Component
 public class ContentBridgingImpl implements ContentBridging {
@@ -79,13 +90,88 @@ public class ContentBridgingImpl implements ContentBridging {
     @Autowired
     private IndexPublication index;
 
+    private ThreadPoolExecutor threadPoolExecutor;
+
     private DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
     private XPath xpath = XPathFactory.newInstance().newXPath();
 
+    SAXParserFactory factory = SAXParserFactory.newInstance();
+
+    DocumentBuilderFactory domFactory;
+
+    private OpenAireSolrClient localSolrClient;
+
+    private long count;
+
     @PostConstruct
     void init() {
         setDefaultConnection();
+        threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(120);
+        domFactory = DocumentBuilderFactory.newInstance();
+        domFactory.setIgnoringComments(true);
+        this.localSolrClient = new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection);
+        count = 0;
+    }
+
+//    @Override
+//    public void bridge(String xml) {
+//        try {
+//            ParseDocumentTask task = new ParseDocumentTask(applicationContext,
+//                    xml,
+//                    factory.newSAXParser(),
+//                    domFactory.newDocumentBuilder(),
+//                    TransformerFactory.newInstance().newTransformer(),
+//                    index,
+//                    new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection));
+//            threadPoolExecutor.submit(task);
+//        } catch (Exception e) {
+//            log.error(e);
+//        }
+//    }
+
+    @Override
+    public void bridge(MultipartFile zipFile) {
+        try {
+//            long fileReceived = System.currentTimeMillis();
+//            log.info("Receiving file");
+            TarInputStream tarInputStream = new TarInputStream(zipFile.getInputStream());
+            TarEntry entry;
+
+            while ((entry = tarInputStream.getNextEntry()) != null) {
+                System.out.println(entry.getName());
+                final File outputFile = File.createTempFile(entry.getName(), "tmp");
+                final OutputStream outputFileStream = new FileOutputStream(outputFile);
+                IOUtils.copy(tarInputStream, outputFileStream);
+                outputFileStream.close();
+
+                BufferedInputStream bin = new BufferedInputStream(new FileInputStream(
+                        outputFile));
+                byte[] buffer = new byte[(int) outputFile.length()];
+                bin.read(buffer);
+                String xml = new String(buffer);
+
+                if (!xml.isEmpty()) {
+
+                    int starting = xml.indexOf("<dri:objIdentifier>") + "<dri:objIdentifier>".length();
+                    int ending = xml.indexOf("</dri:objIdentifier>");
+                    String identifier = xml.substring(starting, ending);
+                    log.info("Sending xml with identifier " + identifier + " for process");
+                    ParseDocumentTask task = new ParseDocumentTask(applicationContext,
+                            xml,
+                            factory.newSAXParser(),
+                            domFactory.newDocumentBuilder(),
+                            TransformerFactory.newInstance().newTransformer(),
+                            index,
+                            new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection));
+                    threadPoolExecutor.submit(task);
+                }
+            }
+            tarInputStream.close();
+
+        } catch (Exception e) {
+            log.error(e);
+        }
     }
 
     @Override
@@ -161,8 +247,7 @@ public class ContentBridgingImpl implements ContentBridging {
                 String doc = document.getFieldValues(queryOutputField).toArray()[0].toString();
                 searchResult.getPublications().add(doc);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("search.Exception", e);
         }
         return searchResult;
