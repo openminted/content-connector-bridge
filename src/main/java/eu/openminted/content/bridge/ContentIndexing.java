@@ -26,6 +26,17 @@ class ContentIndexing {
         xpath = XPathFactory.newInstance().newXPath();
     }
 
+    /**
+     * Parses the openaire_profile.xml file and retrieves values (via xpath) from the publication
+     * to add it as solr document field when inserting document into Solr index
+     * @param is the openaire_profile.xml file as input stream
+     * @param xml the publication xml as string
+     * @return a map of fields
+     * @throws ParserConfigurationException
+     * @throws XPathExpressionException
+     * @throws IOException
+     * @throws SAXException
+     */
     static Map<String, Object> indexFields(InputStream is, String xml) throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -51,6 +62,17 @@ class ContentIndexing {
         return indexedFields;
     }
 
+    /**
+     * Reads the xml to get value of solr document's field
+     * @param xml the xml to read
+     * @param field the name of the field to find value
+     * @param expression xpath expression that will retrieve the value from the xml
+     * @return a map entry with the name of the field and the corresponding value
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     * @throws XPathExpressionException
+     */
     private static Map.Entry<String, Object> parseXml(String xml, String field, String expression)
             throws ParserConfigurationException, IOException, SAXException, XPathExpressionException {
 
