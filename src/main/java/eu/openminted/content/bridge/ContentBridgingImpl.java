@@ -96,9 +96,9 @@ public class ContentBridgingImpl implements ContentBridging {
 
     private XPath xpath = XPathFactory.newInstance().newXPath();
 
-    SAXParserFactory factory = SAXParserFactory.newInstance();
+    private SAXParserFactory factory = SAXParserFactory.newInstance();
 
-    DocumentBuilderFactory domFactory;
+    private DocumentBuilderFactory domFactory;
 
     private OpenAireSolrClient localSolrClient;
 
@@ -114,27 +114,9 @@ public class ContentBridgingImpl implements ContentBridging {
         count = 0;
     }
 
-//    @Override
-//    public void bridge(String xml) {
-//        try {
-//            ParseDocumentTask task = new ParseDocumentTask(applicationContext,
-//                    xml,
-//                    factory.newSAXParser(),
-//                    domFactory.newDocumentBuilder(),
-//                    TransformerFactory.newInstance().newTransformer(),
-//                    index,
-//                    new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection));
-//            threadPoolExecutor.submit(task);
-//        } catch (Exception e) {
-//            log.error(e);
-//        }
-//    }
-
     @Override
     public void bridge(MultipartFile zipFile) {
         try {
-//            long fileReceived = System.currentTimeMillis();
-//            log.info("Receiving file");
             TarInputStream tarInputStream = new TarInputStream(zipFile.getInputStream());
             TarEntry entry;
 
@@ -148,24 +130,27 @@ public class ContentBridgingImpl implements ContentBridging {
                 BufferedInputStream bin = new BufferedInputStream(new FileInputStream(
                         outputFile));
                 byte[] buffer = new byte[(int) outputFile.length()];
-                bin.read(buffer);
-                String xml = new String(buffer);
+                if (bin.read(buffer) > 0) {
+                    String xml = new String(buffer);
 
-                if (!xml.isEmpty()) {
+                    if (!xml.isEmpty()) {
 
-                    int starting = xml.indexOf("<dri:objIdentifier>") + "<dri:objIdentifier>".length();
-                    int ending = xml.indexOf("</dri:objIdentifier>");
-                    String identifier = xml.substring(starting, ending);
-                    log.info("Sending xml with identifier " + identifier + " for process");
-                    ParseDocumentTask task = new ParseDocumentTask(applicationContext,
-                            xml,
-                            factory.newSAXParser(),
-                            domFactory.newDocumentBuilder(),
-                            TransformerFactory.newInstance().newTransformer(),
-                            index,
-                            new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection));
-                    threadPoolExecutor.submit(task);
+                        int starting = xml.indexOf("<dri:objIdentifier>") + "<dri:objIdentifier>".length();
+                        int ending = xml.indexOf("</dri:objIdentifier>");
+                        String identifier = xml.substring(starting, ending);
+                        log.info("Sending xml with identifier " + identifier + " for process");
+                        ParseDocumentTask task = new ParseDocumentTask(applicationContext,
+                                xml,
+                                factory.newSAXParser(),
+                                domFactory.newDocumentBuilder(),
+                                TransformerFactory.newInstance().newTransformer(),
+                                index,
+                                new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection));
+                        threadPoolExecutor.submit(task);
+                    }
                 }
+                if (!outputFile.delete())
+                    log.info("Could not remove temp file... Please delete temp file manually.");
             }
             tarInputStream.close();
 
@@ -214,7 +199,7 @@ public class ContentBridgingImpl implements ContentBridging {
 
         if (query.getFacets() == null) query.setFacets(new ArrayList<>());
 
-        QueryResponse queryResponse = null;
+        QueryResponse queryResponse;
         Map<String, Facet> facets = new HashMap<>();
 
         try {
