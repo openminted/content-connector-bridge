@@ -244,6 +244,7 @@ public class ContentBridgingImpl implements ContentBridging {
             if (count.getCount() == 0) continue;
             Value value = new Value();
             value.setValue(count.getName());
+            value.setLabel(count.getName());
             value.setCount((int) count.getCount());
             values.add(value);
         }
@@ -259,6 +260,7 @@ public class ContentBridgingImpl implements ContentBridging {
         List<Value> values = new ArrayList<>();
         Value value = new Value();
         value.setValue(countName);
+        value.setLabel(countName);
         value.setCount(countValue);
         values.add(value);
 
