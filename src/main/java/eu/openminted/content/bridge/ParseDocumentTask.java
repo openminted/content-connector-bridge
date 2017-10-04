@@ -186,7 +186,7 @@ public class ParseDocumentTask implements Runnable {
                 String documentIndexInfo = "";
                 if (indexResponse != null) {
                     solrInputDocument.setField("hashvalue", indexResponse.getHashValue());
-                    solrInputDocument.setField("mimetype", indexResponse.getMimeType());
+                    solrInputDocument.setField("mimetype", indexedFields.get("mimetype"));//indexResponse.getMimeType());
                     solrInputDocument.setField("fulltext", indexResponse.getUrl());
                     documentIndexInfo = handler.getIdentifier()
                             + " contains fulltext with hashkey " + indexResponse.getHashValue()

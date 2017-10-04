@@ -193,6 +193,7 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                     solrInputDocument.setField("fulltext", indexResponse.getUrl());
                     documentIndexInfo = handler.getIdentifier()
                             + " contains fulltext with hashkey " + indexResponse.getHashValue()
+                            + " of type " + indexResponse.getMimeType()
                             + " at " + indexResponse.getUrl() + "\n";
                 } else {
                     documentIndexInfo = handler.getIdentifier() + " does not contain fulltext.\n";
@@ -201,15 +202,11 @@ public class ContentBridgingStreamingResponseCallback extends StreamingResponseC
                 if (solrInputDocument.getField("resultrights")
                         .getValue()
                         .toString()
-                        .contains("Open Access")
-                        || solrInputDocument.getField("resultrights")
-                        .getValue()
-                        .toString()
-                        .contains("Embargo")) {
+                        .contains("Open Access")) {
 
                     log.info(solrInputDocument.getField("resultrights").getValue().toString());
 
-                    openAireSolrClient.add(solrInputDocument);
+//                    openAireSolrClient.add(solrInputDocument);
                     count++;
                     log.info("Store contains " + count + " documents.\n" + documentIndexInfo);
                 }
