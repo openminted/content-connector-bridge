@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: eu.openminted:content-connector-openaire:1.0.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/content-connector-openaire/1.0.1-SNAPSHOT/content-connector-openaire-1.0.1-20171019.145008-99.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/content-connector-openaire/1.0.1-SNAPSHOT/content-connector-openaire-1.0.1-20171019.145008-99-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/content-connector-openaire/1.0.1-SNAPSHOT/content-connector-openaire-1.0.1-20171019.145008-99-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: eu.openminted:omtd-model:2.0.2-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/omtd-model/2.0.2-SNAPSHOT/omtd-model-2.0.2-20170904.174037-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/omtd-model/2.0.2-SNAPSHOT/omtd-model-2.0.2-20170904.174037-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/omtd-model/2.0.2-SNAPSHOT/omtd-model-2.0.2-20170904.174037-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: eu.openminted:omtd-cache-api:0.0.1-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/omtd-cache-api/0.0.1-SNAPSHOT/omtd-cache-api-0.0.1-20170919.130846-16.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/omtd-cache-api/0.0.1-SNAPSHOT/omtd-cache-api-0.0.1-20170919.130846-16-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/omtd-cache-api/0.0.1-SNAPSHOT/omtd-cache-api-0.0.1-20170919.130846-16-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

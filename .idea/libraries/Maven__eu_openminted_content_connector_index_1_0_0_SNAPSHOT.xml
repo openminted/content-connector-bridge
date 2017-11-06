@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: eu.openminted:content-connector-index:1.0.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/content-connector-index/1.0.0-SNAPSHOT/content-connector-index-1.0.0-20171002.124436-1.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/content-connector-index/1.0.0-SNAPSHOT/content-connector-index-1.0.0-20171002.124436-1-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/eu/openminted/content-connector-index/1.0.0-SNAPSHOT/content-connector-index-1.0.0-20171002.124436-1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
