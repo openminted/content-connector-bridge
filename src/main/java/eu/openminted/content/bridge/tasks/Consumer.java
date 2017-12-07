@@ -4,6 +4,7 @@ import eu.openminted.content.bridge.indices.ContentIndexing;
 import eu.openminted.content.index.IndexPublication;
 import eu.openminted.content.index.entities.Publication;
 import eu.openminted.content.openaire.OpenAireSolrClient;
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.solr.common.SolrInputDocument;
 import org.springframework.context.ApplicationContext;
@@ -27,43 +28,43 @@ import java.util.TimeZone;
 import java.util.concurrent.BlockingQueue;
 
 public class Consumer implements Runnable {
-    private static Logger log = Logger.getLogger(Consumer.class.getName());
+    private static final Logger logger = LogManager.getLogger(Consumer.class);
 
     private ApplicationContext applicationContext;
     private Transformer transformer;
     private IndexPublication index;
-    private OpenAireSolrClient localSolrClient;
     private long initiationTime;
     private DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
     private DocumentBuilder dBuilder;
-    private BlockingQueue queue = null;
+    private BlockingQueue parsingQueue = null;
+    private BlockingQueue solrQueue = null;
     private Producer producer;
 
 
-    public Consumer(BlockingQueue queue,ApplicationContext applicationContext, Transformer transformer, IndexPublication index,
-                    OpenAireSolrClient localSolrClient, Producer producer) {
+    public Consumer(BlockingQueue queue, BlockingQueue solrQueue,ApplicationContext applicationContext, Transformer transformer, IndexPublication index,
+                    Producer producer) {
         this.applicationContext = applicationContext;
         this.transformer = transformer;
         this.index = index;
-        this.localSolrClient = localSolrClient;
         this.initiationTime = System.currentTimeMillis();
-        this.queue = queue;
+        this.parsingQueue = queue;
+        this.solrQueue = solrQueue;
         this.producer = producer;
-        System.out.println("Consumer is up and running!");
+        logger.info("Consumer is up and running...");
     }
 
     @Override
     public void run() {
 
-        while(producer.isRunning() || !queue.isEmpty()) {
+        while(producer.isRunning() || !parsingQueue.isEmpty()) {
             String filename = "";
             try {
-                filename = (String) queue.take();
-                if(filename.equals("interrupt"))
+                filename = (String) parsingQueue.take();
+                if(filename.equals("interrupt")) {
+                    logger.info("Breaking..");
                     break;
-
+                }
                 File fileToParse = new File(filename);
-
                 dBuilder = dbFactory.newDocumentBuilder();
                 Document doc = dBuilder.parse(fileToParse);
                 doc.getDocumentElement().normalize();
@@ -79,8 +80,10 @@ public class Consumer implements Runnable {
 
                 dBuilder = dbFactory.newDocumentBuilder();
                 doc = dBuilder.newDocument();
-                if (index.containsPublication(recordID)) {
-                    indexResponse = index.getPublication(recordID);
+
+                indexResponse = index.getPublication(recordID);
+                if (indexResponse!=null) {
+
                     if (indexResponse.getUrl().contains("pdfs/media/pdfs"))
                         indexResponse.setUrl(indexResponse.getUrl().replace("pdfs/media/pdfs", "pdfs"));
 
@@ -120,25 +123,28 @@ public class Consumer implements Runnable {
                     SolrInputDocument solrInputDocument = new SolrInputDocument();
                     Map<String, Object> indexedFields = null;
                     String xmlOutput = nodeToString(nodes.item(0));
+
+
                     try {
                         InputStream is = resource.getInputStream();
+                        if(!ContentIndexing.hasBestLicense(is,xmlOutput)) {
+                            //No need to continue with this.. we need only the Open Access and Embargo ones
+                            fileToParse.delete();
+                            continue;
+                        }
+
                         indexedFields = ContentIndexing.indexFields(is, xmlOutput);
 
                     } catch (ParserConfigurationException e) {
-                        log.error(this.getClass().toString() + ": Parser Configuration exception", e);
+                        logger.error(this.getClass().toString() + ": Parser Configuration exception", e);
                     } catch (XPathExpressionException e) {
-                        log.error(this.getClass().toString() + ": XPath Expression exception", e);
+                        logger.error(this.getClass().toString() + ": XPath Expression exception", e);
                     }
 
                     solrInputDocument.setField("__indexrecordidentifier", recordID);
                     solrInputDocument.setField("__fulltext", new String[]{});
-//                for (Map.Entry<String, Object> f : solrDocument.entrySet()) {
-//                    // field "version" will be recreated in the new index
-//                    if (f.getKey().equals("_version_")) continue;
-//                    solrInputDocument.setField(f.getKey(), f.getValue());
-//                }
 
-                    if (indexedFields != null)
+                    if (indexedFields != null) {
                         for (Map.Entry<String, Object> p : indexedFields.entrySet()) {
                             if (p.getKey().equalsIgnoreCase("resultdateofacceptance")) {
                                 Date date = null;
@@ -176,10 +182,11 @@ public class Consumer implements Runnable {
 
                                 }
                             } else {
-
                                 solrInputDocument.addField(p.getKey(), p.getValue());
                             }
                         }
+                    }
+
                     solrInputDocument.setField("__result", xmlOutput);
 
                     String documentIndexInfo = "";
@@ -202,33 +209,35 @@ public class Consumer implements Runnable {
                             .getValue()
                             .toString()
                             .contains("Embargo")) {
-                        log.info("Saving "+filename + " to solr");
-                        localSolrClient.add(solrInputDocument);
-
-
-                    } else {
-
+                        logger.info("Saving "+filename + " to solr");
+                        solrQueue.put(solrInputDocument);
                     }
-
-                } else {
 
                 }
 
                 fileToParse.delete();
 
             } catch (IOException e) {
-                log.info(e.getMessage());
+                logger.info(e.getMessage());
             } catch (ParserConfigurationException e) {
-                log.info(e.getMessage());
+                logger.info(e.getMessage());
             } catch (SAXException e) {
-                log.error("Append error");
+                logger.error("Append error");
             } catch (TransformerException e) {
-                log.error(e.getMessage());
+                logger.error(e.getMessage());
             } catch (InterruptedException e) {
-                log.error("Failed to parse object from the queue");
+                logger.error("Failed to parse object from the queue");
             }
         }
-        System.out.println("Consumer is out!");
+
+        try {
+            solrQueue.put(null);
+            logger.info("Consumer is out..");
+        } catch (InterruptedException e) {
+           logger.error(e.getMessage());
+        }
+
+
     }
 
 
@@ -240,7 +249,7 @@ public class Consumer implements Runnable {
             t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             t.transform(new DOMSource(printingNode), new StreamResult(sw));
         } catch (TransformerException te) {
-            System.out.println("nodeToString Transformer Exception");
+           logger.error("nodeToString Transformer Exception");
         }
         return sw.toString();
     }

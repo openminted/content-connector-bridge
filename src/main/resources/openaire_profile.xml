@@ -21,6 +21,7 @@
                         <FIELD indexable="false" name="oafentity" result="true" stat="false" tokenizable="true" xpath="//*[local-name() = 'entity']"/>
                         <FIELD indexable="true" name="oaftype" result="false" stat="false" tokenizable="false" value="local-name(//*[local-name()='entity']/*)"/>
                         <FIELD indexable="true" name="objIdentifier" result="false" stat="false" tokenizable="false" xpath="//header/dri:objIdentifier"/>
+                        <FIELD indexable="true" multivalued="false" name="resultbestlicense" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classname"/>
 
                         <!-- DATASOURCE FIELDS -->
                         <FIELD indexable="true" name="datasourceofficialname" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='datasource']/officialname"/>
@@ -124,7 +125,6 @@
                         <FIELD indexable="true" name="resultdescription" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='result']//*[local-name()='description']"/>
                         <FIELD indexable="true" name="resultrights" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/licence/@classname"/>
                         <FIELD indexable="true" name="resultrightsid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/licence/@classid"/>
-                        <FIELD indexable="true" multivalued="false" name="resultbestlicense" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classname"/>
                         <FIELD indexable="true" multivalued="false" name="resultbestlicenseid" result="false" stat="false" tokenizable="false" xpath="//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classid"/>
                         <FIELD indexable="true" name="resultidentifier" result="false" stat="false" xpath="//*[local-name()='entity']/*[local-name()='result']/children/instance/webresource/*[local-name()='url']"/>
                         <FIELD indexable="true" name="resultdateofacceptance" multivalued="false" result="false" stat="false" type="date" xpath="//*[local-name()='entity']/*[local-name()='result']/dateofacceptance"/>

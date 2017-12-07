@@ -1,8 +1,9 @@
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/Application.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/tasks/Producer.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/tasks/Pair.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/tasks/Consumer.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/indices/ContentIndexing.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/tasks/SequenceFileIterator.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/tasks/SequenceFileIterable.java
-/home/jodee/IdeaProjects/contentconnectorbridge/src/main/java/eu/openminted/content/bridge/tasks/SequenceFileUtils.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/Savior.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/SequenceFileIterable.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/indices/ContentIndexing.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/SequenceFileIterator.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/Consumer.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/Producer.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/SequenceFileUtils.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/Application.java
+/home/jod/IdeaProjects/content-connector-full/src/main/java/eu/openminted/content/bridge/tasks/Pair.java

@@ -1,4 +1,5 @@
 eu/openminted/content/bridge/tasks/SequenceFileIterable.class
+eu/openminted/content/bridge/tasks/Savior.class
 eu/openminted/content/bridge/tasks/SequenceFileUtils$3.class
 eu/openminted/content/bridge/tasks/Producer.class
 eu/openminted/content/bridge/tasks/SequenceFileUtils$1.class

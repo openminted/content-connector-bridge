@@ -2,6 +2,7 @@ package eu.openminted.content.bridge;
 
 import eu.openminted.content.bridge.tasks.Consumer;
 import eu.openminted.content.bridge.tasks.Producer;
+import eu.openminted.content.bridge.tasks.Savior;
 import eu.openminted.content.index.IndexConfiguration;
 import eu.openminted.content.index.IndexPublication;
 import eu.openminted.content.openaire.OpenAireSolrClient;
@@ -11,6 +12,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -27,10 +32,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class Application implements CommandLineRunner{
 
+
+    private static final Logger logger = LogManager.getLogger(Application.class);
 
     @Bean
     public IndexConfiguration getEsConfig() throws Exception {
@@ -97,39 +106,45 @@ public class Application implements CommandLineRunner{
         Path path = new Path(p.getProperty("hdfs.exporter.seq.file"));
         String outDir = p.getProperty("hdfs.exporter.out.dir");
 
-        System.out.println("Path:"+path.toString());
+        logger.info("Path:"+path.toString());
 
         for(Map.Entry<Object, Object> e : p.entrySet()) {
             conf.set(e.getKey().toString(), e.getValue().toString());
         }
 
-        System.out.println("Configuration set, initiating process..");
-        iniate();
+        logger.info("Configuration set, initiating process..");
         int numberOfDocs = Integer.parseInt(cl.getOptionValue("n"));
 
         BlockingQueue blockingQueue = new ArrayBlockingQueue(numberOfDocs);
+        BlockingQueue solrQueue = new ArrayBlockingQueue(numberOfDocs);
+
 
         Producer producer = new Producer(blockingQueue,conf,path,outDir, cl.hasOption("v"),MAX_THREADS);
+
+
+        SolrClient solrClient = new HttpSolrClient.Builder(localHosts+"/"+localDefaultCollection).build();
+
+        ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
+
+
+        for(int i=0;i<MAX_THREADS;i++){
+            executor.execute(new Consumer(blockingQueue,
+                    solrQueue,
+                    applicationContext,
+                    TransformerFactory.newInstance().newTransformer(),
+                    index,
+                    producer
+            ));
+        }
+
+        new Thread(new Savior(solrQueue,applicationContext,producer,solrClient)).start();
 
         new Thread(producer).start();
 
 
-        for(int i=0;i<MAX_THREADS;i++){
-            new Thread(new Consumer(blockingQueue,
-                    applicationContext,
-                    TransformerFactory.newInstance().newTransformer(),
-                    index,
-                    new OpenAireSolrClient(localClientType,
-                            localHosts,
-                            localDefaultCollection),
-                    producer
-            )).start();
-        }
-    }
 
-    public void iniate(){
-        this.localSolrClient = new OpenAireSolrClient(localClientType, localHosts, localDefaultCollection);
-    }
 
+
+    }
 
 }

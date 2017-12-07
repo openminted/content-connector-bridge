@@ -26,6 +26,19 @@ public class ContentIndexing {
         xpath = XPathFactory.newInstance().newXPath();
     }
 
+    public static boolean hasBestLicense(InputStream is, String xml) throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
+
+        Document doc = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+        String value = (String) xpath.evaluate("//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classname", doc, XPathConstants.STRING);
+
+        if(value==null || value.isEmpty())
+            return false;
+        else
+            return true;
+
+    }
+
+
     public static Map<String, Object> indexFields(InputStream is, String xml) throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         XPath xpath = XPathFactory.newInstance().newXPath();
@@ -43,6 +56,7 @@ public class ContentIndexing {
 
             if (!fieldName.isEmpty() && !expression.isEmpty()) {
                 Map.Entry<String, Object> mapEntry = parseXml(xml, fieldName, expression);
+
                 if (mapEntry != null && mapEntry.getValue() != null) {
                     indexedFields.put(mapEntry.getKey(), mapEntry.getValue());
                 }
