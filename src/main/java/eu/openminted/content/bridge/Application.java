@@ -62,9 +62,6 @@ public class Application implements CommandLineRunner{
     @org.springframework.beans.factory.annotation.Value("${pathToFiles}")
     private String pathToFiles;
 
-    @org.springframework.beans.factory.annotation.Value("${domainURL}")
-    private String urlDomain;
-
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -102,7 +99,7 @@ public class Application implements CommandLineRunner{
         BlockingQueue blockingQueue = new ArrayBlockingQueue(numberOfDocs);
         BlockingQueue solrQueue = new ArrayBlockingQueue(numberOfDocs);
 
-        AskingStores askingStores = new AskingStores(blockingQueue, pathToFiles,urlDomain);
+        AskingStores askingStores = new AskingStores(blockingQueue, pathToFiles);
 
         logger.info(localHosts+"/"+localDefaultCollection);
         SolrClient solrClient = new HttpSolrClient.Builder(localHosts+"/"+localDefaultCollection).build();

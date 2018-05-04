@@ -12,16 +12,16 @@ import eu.openminted.content.bridge.utils.MyFilenameFilter;
 import eu.openminted.content.index.entities.Publication;
 import eu.openminted.content.index.entities.utils.ExtensionResolver;
 import eu.openminted.omtdcache.CacheDataIDMD5;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import javax.xml.ws.wsaddressing.W3CEndpointReference;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
@@ -30,8 +30,6 @@ import java.util.concurrent.BlockingQueue;
 public class AskingStores implements Runnable {
 
     private static final Logger logger = LogManager.getLogger(AskingStores.class);
-
-    private String urlDomain;
 
     private String pathToFiles;
 
@@ -45,10 +43,9 @@ public class AskingStores implements Runnable {
     private BlockingQueue bq;
     private boolean running = false;
 
-    public AskingStores(BlockingQueue queue, String pathToFiles, String urlDomain) {
+    public AskingStores(BlockingQueue queue, String pathToFiles) {
         this.setBlockingQueue(queue);
         this.pathToFiles = pathToFiles;
-        this.urlDomain = urlDomain;
         this.running = true;
         logger.info("Asking stores is up and running..");
     }
@@ -143,14 +140,18 @@ public class AskingStores implements Runnable {
 
 //                            logger.info(Thread.currentThread().getName() + " - " + filename);
                             String extension = ExtensionResolver.getExtension(md.getMimeType());
-                            String url = md.getURI();
 //                            logger.info(Thread.currentThread().getName() + " - " + filename + " - download");
-                            FileOutputStream fos = null;
+                            InputStream is = null;
                             try {
                                 // Get publication file
-                                fos = new FileOutputStream(pathToFiles + filename + extension);
-                                IOUtils.copyLarge(new URL(url).openStream(), fos);
-                                fos.close();
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                is = new URL(md.getURI()).openStream ();
+                                byte[] byteChunk = new byte[20000]; // Or whatever size you want to read in at a time.
+                                int n;
+
+                                while ( (n = is.read(byteChunk)) > 0 ) {
+                                    baos.write(byteChunk, 0, n);
+                                }
 
                                 // Create Publication document for Elastic Search
                                 Publication pub = new Publication();
@@ -158,15 +159,10 @@ public class AskingStores implements Runnable {
                                 pub.setOpenaireId(filename);
                                 // mimeType
                                 pub.setMimeType(md.getMimeType());
-                                // path to file
-                                String pathToFile = pathToFiles + filename + extension;
-                                pub.setPathToFile(pathToFile);
                                 // hash value
-                                byte[] file = FileUtils.readFileToByteArray(new File(pathToFile));
-                                String hashValue = md5Calculator.getID(file);
-                                pub.setHashValue(hashValue);
+                                pub.setHashValue( md5Calculator.getID(baos.toByteArray()));
                                 // URL to file
-                                pub.setUrl(urlDomain + filename + extension);
+                                pub.setUrl(md.getURI());
 //                                logger.info(Thread.currentThread().getName() + " " + pub);
                                 try {
 //                                    logger.info("Adding publication with id: "+pub.getOpenaireId() + " to the queue");
@@ -179,7 +175,7 @@ public class AskingStores implements Runnable {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             } finally {
-                                IOUtils.closeQuietly(fos);
+                                IOUtils.closeQuietly(is);
                             }
                         } else {
                             logger.info("file " + metadataFilename + " already exists or is over 20MB");
@@ -193,6 +189,14 @@ public class AskingStores implements Runnable {
             logger.error("Fatal error " + e.getMessage() + " --- TERMINATING");
         }
         logger.info("Asking stores is done..");
+
+        for(int i=0;i<10;i++) {
+            try {
+                bq.put(null);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage() +"--- continuing");
+            }
+        }
         running = false;
     }
 

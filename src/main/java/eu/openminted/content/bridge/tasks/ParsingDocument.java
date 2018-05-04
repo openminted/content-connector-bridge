@@ -66,6 +66,9 @@ public class ParsingDocument implements Runnable {
                 Resource resource = applicationContext.getResource("classpath:openaire_profile.xml");
                 Publication publication= (Publication) parsingQueue.take();
 
+                if(publication==null)//exit the loop if nulls are being send by AskingStores
+                    break;
+
                 Document document = isPresentAtOpenaire(publication);
                 if(document==null) {
                     continue;
@@ -78,9 +81,6 @@ public class ParsingDocument implements Runnable {
                 dBuilder = dbFactory.newDocumentBuilder();
                 Document doc = dBuilder.newDocument();
 
-
-                if (publication.getUrl().contains("pdfs/media/pdfs"))
-                    publication.setUrl(publication.getUrl().replace("pdfs/media/pdfs", "pdfs"));
 
                 Element newNode = (Element) record.getElementsByTagName("oaf:result").item(0);
                 Element indexInfoElement = doc.createElement("indexinfo");
