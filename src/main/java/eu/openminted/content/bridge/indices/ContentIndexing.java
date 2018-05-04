@@ -29,7 +29,7 @@ public class ContentIndexing {
     public static boolean hasBestLicense(InputStream is, String xml) throws ParserConfigurationException, XPathExpressionException, IOException, SAXException {
 
         Document doc = dbf.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
-        String value = (String) xpath.evaluate("//*[local-name()='entity']/*[local-name()='result']/bestlicense/@classname", doc, XPathConstants.STRING);
+        String value = (String) xpath.evaluate("//*[local-name()='entity']/*[local-name()='result']/bestaccessright/@classname", doc, XPathConstants.STRING);
 
         if(value==null || value.isEmpty())
             return false;

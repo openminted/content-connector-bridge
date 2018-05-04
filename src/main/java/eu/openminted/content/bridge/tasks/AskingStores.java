@@ -1,0 +1,204 @@
+package eu.openminted.content.bridge.tasks;
+
+import com.google.gson.Gson;
+import eu.dnetlib.data.objectstore.rmi.ObjectStoreFile;
+import eu.dnetlib.data.objectstore.rmi.ObjectStoreService;
+import eu.dnetlib.data.objectstore.rmi.ObjectStoreServiceException;
+import eu.dnetlib.domain.EPR;
+import eu.dnetlib.enabling.resultset.rmi.ResultSetException;
+import eu.dnetlib.enabling.resultset.rmi.ResultSetService;
+import eu.dnetlib.utils.EPRUtils;
+import eu.openminted.content.bridge.utils.MyFilenameFilter;
+import eu.openminted.content.index.entities.Publication;
+import eu.openminted.content.index.entities.utils.ExtensionResolver;
+import eu.openminted.omtdcache.CacheDataIDMD5;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.cxf.jaxws.JaxWsProxyFactoryBean;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
+import javax.xml.ws.wsaddressing.W3CEndpointReference;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+
+public class AskingStores implements Runnable {
+
+    private static final Logger logger = LogManager.getLogger(AskingStores.class);
+
+    private String urlDomain;
+
+    private String pathToFiles;
+
+    // Openaire services
+    private String objectStoreAddress = "http://services.openaire.eu:8280/is/services/objectStore";
+    private String rsAddress = "http://services.openaire.eu:8280/is/services/resultSet";
+
+    private ObjectStoreService storeService;
+    private ResultSetService rsService;
+    private final CacheDataIDMD5 md5Calculator = new CacheDataIDMD5();
+    private BlockingQueue bq;
+    private boolean running = false;
+
+    public AskingStores(BlockingQueue queue, String pathToFiles, String urlDomain) {
+        this.setBlockingQueue(queue);
+        this.pathToFiles = pathToFiles;
+        this.urlDomain = urlDomain;
+        this.running = true;
+        logger.info("Asking stores is up and running..");
+    }
+
+    public boolean isRunning(){
+        return this.running;
+    }
+
+
+    @Override
+    public void run() {
+
+        Gson gson = new Gson();
+
+        JaxWsProxyFactoryBean factory = new JaxWsProxyFactoryBean();
+        factory = new JaxWsProxyFactoryBean();
+        factory.setServiceClass(ObjectStoreService.class);
+        factory.setAddress(objectStoreAddress);
+        storeService = (ObjectStoreService) factory.create();
+
+        factory = new JaxWsProxyFactoryBean();
+        factory.setServiceClass(ResultSetService.class);
+        factory.setAddress(rsAddress);
+        rsService = (ResultSetService) factory.create();
+
+       logger.info("Getting list of stores");
+        List<String> stores = storeService.getListOfObjectStores();
+        try {
+            for (String store : stores) {
+                logger.info("Getting result set from store " + store);
+                W3CEndpointReference w3cEpr = null;
+                w3cEpr = storeService.deliverObjects(store, 0L, new Date().getTime());
+
+
+                EPR epr = EPRUtils.createEPR(w3cEpr);
+                String rsId = epr.getParameter("ResourceIdentifier");
+                int count = rsService.getNumberOfElements(rsId);
+                boolean firstDoc = true;
+
+                for (int i = 0; i < count; i += 1000) {
+//                    logger.info(new Date() + "  Getting records " + i + " - " + (i + 1000) + "/" + count + " from store " + store);
+//                    logger.info("Total size in count ::" + count +
+//                            " Total size in Size::" + storeService.getSize(store));
+                    List<String> objects = null;
+                    int counter = 0;
+
+                    while (objects == null && counter < 5) {
+                        try {
+                            objects = rsService.getResult(rsId, i, i + 1000, "waiting");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            counter++;
+                        }
+                    }
+
+                    if (objects == null)
+                        continue;
+
+                    // Check where you have retrieved all documents in this store
+                    if (firstDoc) {
+                        ObjectStoreFile md = gson.fromJson(objects.get(0), ObjectStoreFile.class);
+                        String filename = md.getObjectID().substring(0, md.getObjectID().lastIndexOf("::"));
+
+                        if (!filename.contains("::")) {
+//                            logger.info("Store " + store + " contains invalid filename, eg " + filename);
+                            break;
+                        }
+//                        logger.info("Ready to scan " + pathToFiles);
+                        String storePrefix = filename.substring(0, filename.lastIndexOf("::"));
+                        MyFilenameFilter filter = new MyFilenameFilter(storePrefix);
+                        String[] listFiles = new File(pathToFiles).list(filter);
+//                        logger.info("Already downloaded " + new File(pathToFiles).list(filter).length
+//                                + "files from store " + store);
+
+                        if (listFiles.length == storeService.getSize(store)) {
+//                            logger.info("Downloaded all files from store " + store);
+                            break;
+                        }
+
+                        firstDoc = false;
+                    }
+
+
+                    for (int j = 0; j < objects.size(); j++) {
+                        final ObjectStoreFile md = gson.fromJson(objects.get(j), ObjectStoreFile.class);
+                        final String filename = md.getObjectID().substring(0, md.getObjectID().lastIndexOf("::"));
+                        final String metadataFilename = pathToFiles + "metadata/" + filename + ".json";
+
+//                        logger.info("Checking for the " + (i + j) + " object in store " + store);
+
+                        if (!new File(metadataFilename).exists() && md.getFileSizeKB() < 20000) {
+
+//                            logger.info(Thread.currentThread().getName() + " - " + filename);
+                            String extension = ExtensionResolver.getExtension(md.getMimeType());
+                            String url = md.getURI();
+//                            logger.info(Thread.currentThread().getName() + " - " + filename + " - download");
+                            FileOutputStream fos = null;
+                            try {
+                                // Get publication file
+                                fos = new FileOutputStream(pathToFiles + filename + extension);
+                                IOUtils.copyLarge(new URL(url).openStream(), fos);
+                                fos.close();
+
+                                // Create Publication document for Elastic Search
+                                Publication pub = new Publication();
+                                // openaireId
+                                pub.setOpenaireId(filename);
+                                // mimeType
+                                pub.setMimeType(md.getMimeType());
+                                // path to file
+                                String pathToFile = pathToFiles + filename + extension;
+                                pub.setPathToFile(pathToFile);
+                                // hash value
+                                byte[] file = FileUtils.readFileToByteArray(new File(pathToFile));
+                                String hashValue = md5Calculator.getID(file);
+                                pub.setHashValue(hashValue);
+                                // URL to file
+                                pub.setUrl(urlDomain + filename + extension);
+//                                logger.info(Thread.currentThread().getName() + " " + pub);
+                                try {
+//                                    logger.info("Adding publication with id: "+pub.getOpenaireId() + " to the queue");
+                                    bq.put(pub);
+                                } catch (InterruptedException e) {
+                                    logger.error(e.getMessage() +"--- continuing");
+                                    continue;
+                                }
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } finally {
+                                IOUtils.closeQuietly(fos);
+                            }
+                        } else {
+                            logger.info("file " + metadataFilename + " already exists or is over 20MB");
+                        }
+                    }
+                }
+
+
+            }
+        } catch (ObjectStoreServiceException | ResultSetException e) {
+            logger.error("Fatal error " + e.getMessage() + " --- TERMINATING");
+        }
+        logger.info("Asking stores is done..");
+        running = false;
+    }
+
+    public void setBlockingQueue(BlockingQueue bq) {
+        this.bq = bq;
+    }
+
+
+}
