@@ -5,7 +5,6 @@ import eu.dnetlib.data.objectstore.rmi.ObjectStoreFile;
 import eu.dnetlib.data.objectstore.rmi.ObjectStoreService;
 import eu.dnetlib.data.objectstore.rmi.ObjectStoreServiceException;
 import eu.dnetlib.domain.EPR;
-import eu.dnetlib.enabling.resultset.rmi.ResultSetException;
 import eu.dnetlib.enabling.resultset.rmi.ResultSetService;
 import eu.dnetlib.utils.EPRUtils;
 import eu.openminted.content.bridge.utils.MyFilenameFilter;
@@ -82,7 +81,23 @@ public class AskingStores implements Runnable {
 
                 EPR epr = EPRUtils.createEPR(w3cEpr);
                 String rsId = epr.getParameter("ResourceIdentifier");
-                int count = rsService.getNumberOfElements(rsId);
+                int count = 0;
+                int attempts = 0;
+                while(count == 0 && attempts < 10) {
+                    try {
+                        count = rsService.getNumberOfElements(rsId);
+                    }catch (Exception e){
+                        attempts++;
+                        try {
+                            logger.debug("Connection may have been interrupted. Retrying in "+1000*attempts+ "s");
+                            Thread.sleep(1000 * attempts);
+                        } catch (InterruptedException e1) {
+                            logger.error(e1.getMessage());
+                            break;
+                        }
+
+                    }
+                }
                 boolean firstDoc = true;
 
                 for (int i = 0; i < count; i += 1000) {
@@ -185,7 +200,7 @@ public class AskingStores implements Runnable {
 
 
             }
-        } catch (ObjectStoreServiceException | ResultSetException e) {
+        } catch (ObjectStoreServiceException e) {
             logger.error("Fatal error " + e.getMessage() + " --- TERMINATING");
         }
         logger.info("Asking stores is done..");
